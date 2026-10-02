@@ -1,26 +1,299 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Farben und Schriften als Tokens (Tailwind: bg-green, text-ink, font-heading …).
+ *
+ * Kontrast (WCAG 2.x, geprüft):
+ *   Grün  #3F8146 auf Weiß 4,73:1   → Text, Links, Buttons (weiße Schrift)
+ *   Beere #A21A45 auf Weiß 7,58:1   → Text, Flächen (weiße Schrift)
+ *   Schwarz #231F20 auf Orange 5,35:1 → Schrift auf orangen Flächen
+ *   Orange #F06C2D auf Weiß 3,05:1  → NIE für Fließtext oder Links, nur Flächen
+ *     und große Überschriften
+ *   Grau #5C5759 auf Weiß 7,09:1    → Nebentexte (Datum)
+ * Ocker kommt ausschließlich im Bild der Krähe vor.
+ */
+@theme {
+  --color-green: #3f8146;
+  --color-green-dark: #2f6135;
+  --color-orange: #f06c2d;
+  --color-berry: #a21a45;
+  --color-ink: #231f20;
+  --color-muted: #5c5759;
+  --color-line: #dcd9da;
+  --color-paper: #ffffff;
+  --color-wash: #f5f4f4;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-cantarell), system-ui, "Segoe UI", Arial, sans-serif;
+  --font-body: var(--font-noto-sans), system-ui, "Segoe UI", Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Inhalt aus dem Block-Editor (Core-Blöcke)                           */
+/* ------------------------------------------------------------------ */
+
+.wp-content {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.wp-content > * + * {
+  margin-top: 1.25em;
+}
+
+.wp-content h2 {
+  font-size: 1.625rem;
+  margin-top: 2em;
+}
+
+.wp-content h3 {
+  font-size: 1.3125rem;
+  margin-top: 1.75em;
+}
+
+.wp-content h4,
+.wp-content h5,
+.wp-content h6 {
+  font-size: 1.125rem;
+  margin-top: 1.5em;
+}
+
+.wp-content a:not(.wp-block-button__link) {
+  color: var(--color-green);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.wp-content a:not(.wp-block-button__link):hover {
+  color: var(--color-green-dark);
+}
+
+.wp-content strong {
+  font-weight: 700;
+}
+
+/* Listen */
+.wp-content ul,
+.wp-content ol {
+  padding-left: 1.5em;
+}
+
+.wp-content ul {
+  list-style: disc;
+}
+
+.wp-content ol {
+  list-style: decimal;
+}
+
+.wp-content li + li,
+.wp-content li > ul,
+.wp-content li > ol {
+  margin-top: 0.35em;
+}
+
+/* Zitat */
+.wp-content blockquote {
+  border-left: 4px solid var(--color-green);
+  padding: 0.25em 0 0.25em 1.25em;
+  font-style: italic;
+}
+
+.wp-content blockquote > * + * {
+  margin-top: 0.75em;
+}
+
+.wp-content blockquote cite {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.9375rem;
+  font-style: normal;
+  color: var(--color-muted);
+}
+
+.wp-content .wp-block-pullquote {
+  border-top: 4px solid var(--color-green);
+  border-bottom: 4px solid var(--color-green);
+  padding: 1.5em 0;
+  text-align: center;
+}
+
+.wp-content .wp-block-pullquote blockquote {
+  border: 0;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+/* Bild mit Bildunterschrift */
+.wp-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.wp-content figure {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.wp-content figcaption,
+.wp-content .wp-element-caption {
+  margin-top: 0.5em;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.wp-content .aligncenter {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.wp-content .alignleft {
+  float: left;
+  margin: 0.25em 1.5em 1em 0;
+  max-width: 50%;
+}
+
+.wp-content .alignright {
+  float: right;
+  margin: 0.25em 0 1em 1.5em;
+  max-width: 50%;
+}
+
+.wp-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Tabelle: auf schmalen Bildschirmen innerhalb des Blocks scrollbar, nie die Seite */
+.wp-content .wp-block-table {
+  overflow-x: auto;
+}
+
+.wp-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.wp-content th,
+.wp-content td {
+  border: 1px solid var(--color-line);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.wp-content thead th {
+  background: var(--color-wash);
+  font-weight: 700;
+}
+
+.wp-content .is-style-stripes tbody tr:nth-child(odd) {
+  background: var(--color-wash);
+}
+
+/* Trennlinie */
+.wp-content hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 2.5em 0;
+}
+
+.wp-content hr.is-style-dots {
+  border: 0;
+  text-align: center;
+}
+
+.wp-content hr.is-style-dots::before {
+  content: "· · ·";
+  letter-spacing: 0.5em;
+  color: var(--color-muted);
+}
+
+/* Button */
+.wp-content .wp-block-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.wp-content .wp-block-button__link {
+  display: inline-block;
+  border-radius: 0.375rem;
+  background: var(--color-green);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.65em 1.25em;
+  text-decoration: none;
+}
+
+.wp-content .wp-block-button__link:hover {
+  background: var(--color-green-dark);
+}
+
+.wp-content .is-style-outline .wp-block-button__link {
+  background: transparent;
+  color: var(--color-green);
+  border: 2px solid var(--color-green);
+}
+
+/* Details */
+.wp-content details {
+  border: 1px solid var(--color-line);
+  border-radius: 0.375rem;
+  padding: 0.75em 1em;
+}
+
+.wp-content details > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.wp-content details > * + * {
+  margin-top: 0.75em;
+}
+
+/* Code */
+.wp-content code {
+  font-size: 0.9375em;
+  background: var(--color-wash);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+}
+
+.wp-content pre {
+  overflow-x: auto;
+  background: var(--color-wash);
+  padding: 1em;
+  border-radius: 0.375rem;
 }
