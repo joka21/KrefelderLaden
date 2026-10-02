@@ -92,7 +92,8 @@ export async function proxy(request: NextRequest) {
   if (isPage && (request.method === "GET" || request.method === "HEAD")) {
     // Seiten immer mit abschließendem Schrägstrich (Dateien wie /robots.txt ausgenommen).
     if (!pathname.endsWith("/") && !/\.[a-z0-9]+$/i.test(pathname)) {
-      const url = request.nextUrl.clone();
+      // Einfache URL statt nextUrl.clone(): NextURL entfernt den angehängten Schrägstrich wieder.
+      const url = new URL(request.url);
       url.pathname = `${pathname}/`;
       return withRobots(request, NextResponse.redirect(url, 308));
     }

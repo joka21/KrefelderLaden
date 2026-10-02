@@ -57,9 +57,15 @@ async function load(path: string): Promise<KlsContent> {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[...slug]">): Promise<Metadata> {
-  const { slug } = await params;
-  const [content, settings] = await Promise.all([load(toPath(slug)), getSettings()]);
-  return contentMetadata(content, settings);
+  const path = toPath((await params).slug);
+  // Nicht gefunden bzw. Weiterleitung entscheidet die Seite; hier nicht werfen,
+  // damit die 404-Seite vollständig als HTML ausgeliefert wird.
+  const draft = await getDraftContent(path);
+  const result = draft ? { found: true as const, content: draft } : await getContent(path);
+  if (!result.found) {
+    return {};
+  }
+  return contentMetadata(result.content, await getSettings());
 }
 
 export default async function ContentPage({ params }: PageProps<"/[...slug]">) {
