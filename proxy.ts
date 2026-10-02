@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Proxy (früher „Middleware“), läuft vor jeder Anfrage:
  *
- * 1. Schutz vor Indexierung: Solange SITE_INDEXABLE nicht „true“ ist, trägt
+ * 1. Schutz vor Indexierung: Solange SITE_INDEXABLE nicht „true“ ist oder der
+ *    Host nicht dem aus SITE_URL entspricht, trägt
  *    jede Antwort den Header „X-Robots-Tag: noindex, nofollow“.
  * 2. Seiten ohne abschließenden Schrägstrich → 308 auf „/…/“ (API-Routen
  *    ausgenommen, siehe skipTrailingSlashRedirect in next.config.ts).
@@ -58,8 +59,27 @@ async function redirectMap(origin: string): Promise<RedirectMap> {
   return map;
 }
 
-function withRobots(response: NextResponse): NextResponse {
-  if (process.env.SITE_INDEXABLE?.trim().toLowerCase() !== "true") {
+function hostOf(url: string | undefined): string {
+  try {
+    return new URL(url ?? "").host.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Indexierbar nur mit SITE_INDEXABLE=true UND auf der Domain aus SITE_URL.
+ * Testadressen (z. B. *.vercel.app) bleiben damit auch nach dem Umschalten noindex.
+ */
+function isIndexableHost(request: NextRequest): boolean {
+  return (
+    process.env.SITE_INDEXABLE?.trim().toLowerCase() === "true" &&
+    request.nextUrl.host.toLowerCase() === hostOf(process.env.SITE_URL?.trim())
+  );
+}
+
+function withRobots(request: NextRequest, response: NextResponse): NextResponse {
+  if (!isIndexableHost(request)) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
   return response;
@@ -74,16 +94,16 @@ export async function proxy(request: NextRequest) {
     if (!pathname.endsWith("/") && !/\.[a-z0-9]+$/i.test(pathname)) {
       const url = request.nextUrl.clone();
       url.pathname = `${pathname}/`;
-      return withRobots(NextResponse.redirect(url, 308));
+      return withRobots(request, NextResponse.redirect(url, 308));
     }
 
     const target = (await redirectMap(origin)).get(normalize(pathname));
     if (target && target.destination !== normalize(pathname)) {
-      return withRobots(NextResponse.redirect(new URL(target.destination, request.url), target.status));
+      return withRobots(request, NextResponse.redirect(new URL(target.destination, request.url), target.status));
     }
   }
 
-  return withRobots(NextResponse.next());
+  return withRobots(request, NextResponse.next());
 }
 
 export const config = {
