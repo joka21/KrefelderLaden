@@ -41,5 +41,8 @@ yarn-error.log*
 next-env.d.ts
 !.env.example
 
-# Original-Schriften (ausgeliefert werden nur die erzeugten WOFF2 in app/fonts/)
+# Originale bleiben lokal: Logo und Krähe liegen byte-identisch in public/images/,
+# aus den Schriften werden die WOFF2 in app/fonts/ erzeugt (scripts/build-fonts.py).
 /material/schriften/*
+/material/logo/*
+/material/kraehe/*
