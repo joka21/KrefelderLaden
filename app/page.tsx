@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return front
     ? contentMetadata(front, settings)
-    : defaultMetadata(settings, { title: settings.site.name, description: TEXTS.home.description, path: "/" });
+    : defaultMetadata(settings, { title: TEXTS.home.title, description: TEXTS.home.description, path: "/" });
 }
 
 export default async function HomePage() {
@@ -41,7 +41,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <JsonLd data={front ? front.schema : defaultSchema(settings, { name: settings.site.name, path: "/" })} />
+      <JsonLd data={front ? front.schema : defaultSchema(settings, { name: TEXTS.home.title, path: "/" })} />
 
       <section className="mx-auto grid max-w-6xl items-center gap-8 px-5 pt-10 sm:px-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:pt-14">
         {/* Krähe wie geliefert auf weißem Hintergrund – das einzige verspielte Element. */}
@@ -53,7 +53,7 @@ export default async function HomePage() {
           className="mx-auto h-auto w-full max-w-sm md:max-w-md"
         />
         <div>
-          <h1 className="text-4xl sm:text-5xl">{front?.title || settings.site.name}</h1>
+          <h1 className="text-4xl sm:text-5xl">{front?.title || TEXTS.home.heading}</h1>
           <p className="mt-5 max-w-prose text-lg leading-relaxed">{TEXTS.home.intro}</p>
         </div>
       </section>

@@ -62,7 +62,7 @@ und vorgerenderte Seiten übernommen. Nach einer Änderung neu bauen bzw. auf Ve
 | `lib/seo.ts` | Metadaten aus dem SEO-Block der API, Robots-Schutz, Standardwerte für Seiten ohne WordPress-Inhalt |
 | `lib/html.ts`, `lib/urls.ts` | Upload-URLs der WordPress-Domain → `/wp-content/uploads/…` (HTML-Parser), Bilder `loading="lazy"` |
 | `lib/consent.ts` | Zentrale Stelle für spätere einwilligungspflichtige Skripte (noch ohne Funktion) |
-| `lib/texts.ts` | Feste Texte; mit `[Platzhalter]` markierte Texte sind vorläufig |
+| `lib/texts.ts` | Feste Texte (Title, Description, H1 und Einleitung der Startseite, Ratgeber-Übersicht) |
 | `lib/sections.ts` | Bereiche und Navigation |
 | `app/page.tsx` | Startseite: Krähe, Kacheln, neueste 6 Beiträge (`/posts`) |
 | `app/[...slug]/page.tsx` | Inhaltsseiten und Beiträge (`/content`) |

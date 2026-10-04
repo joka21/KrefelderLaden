@@ -15,10 +15,15 @@ function heading(page: number): string {
   return page > 1 ? `${TEXTS.ratgeber.title} – Seite ${page}` : TEXTS.ratgeber.title;
 }
 
+/** Title ohne Site-Namen, z. B. „Ratgeber für Krefeld – Seite 2“. */
+function metaTitle(page: number): string {
+  return page > 1 ? `${TEXTS.ratgeber.metaTitle} – Seite ${page}` : TEXTS.ratgeber.metaTitle;
+}
+
 export async function ratgeberMetadata(page: number): Promise<Metadata> {
   const settings = await getSettings();
   return defaultMetadata(settings, {
-    title: pageTitle(heading(page), settings),
+    title: pageTitle(metaTitle(page), settings),
     description: TEXTS.ratgeber.description,
     path: ratgeberPageHref(page),
   });
@@ -36,7 +41,7 @@ export async function RatgeberPage({ page }: { page: number }) {
     <>
       <JsonLd
         data={defaultSchema(settings, {
-          name: pageTitle(heading(page), settings),
+          name: pageTitle(metaTitle(page), settings),
           path: ratgeberPageHref(page),
           type: "CollectionPage",
         })}

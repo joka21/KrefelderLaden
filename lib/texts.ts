@@ -1,23 +1,32 @@
 /**
  * Feste Texte des Frontends an einer Stelle.
  *
- * PLATZHALTER: Alle mit [Platzhalter] markierten Texte sind vorläufig und werden
- * später redaktionell ersetzt. Sobald in WordPress eine Startseite (front_page)
- * veröffentlicht ist, kommen Title, Description und Schema der Startseite von dort.
+ * Sobald in WordPress eine Startseite (front_page) veröffentlicht ist, kommen
+ * Title, Description, H1 und Schema der Startseite von dort.
  */
 export const TEXTS = {
   home: {
-    /** Kurzer Satz unter der Krähe. */
-    intro: "[Platzhalter] Krefelder Laden zeigt, wo man in Krefeld regional einkaufen, Hilfe finden und die Stadt entdecken kann.",
-    /** Description der Startseite, solange keine front_page gesetzt ist. */
-    description: "[Platzhalter] Regional einkaufen, Hilfe finden und Krefeld entdecken – der Krefelder Laden.",
+    /** Title (auch og:title) der Startseite, solange keine front_page gesetzt ist. */
+    title: "Krefelder Laden – Einkaufen, Hilfe & Tipps für Krefeld",
+    /** Description (auch og:description) der Startseite, solange keine front_page gesetzt ist. */
+    description:
+      "Märkte, Läden, Termine und Anlaufstellen in Krefeld: Krefelder Laden zeigt, wo Sie einkaufen, Hilfe finden und die Stadt entdecken. Vor Ort recherchiert.",
+    /** H1 der Startseite, solange keine front_page gesetzt ist. */
+    heading: "Krefelder Laden: einkaufen, Hilfe finden, Krefeld entdecken",
+    /** Einleitung neben der Krähe. */
+    intro:
+      "Wo gibt es in Krefeld was? Krefelder Laden sammelt Märkte, Läden, Termine und Anlaufstellen in der Stadt. Alles wird vor Ort recherchiert und laufend ergänzt.",
     sectionsHeading: "Bereiche",
     latestHeading: "Neueste Beiträge",
     allPosts: "Alle Beiträge im Ratgeber",
   },
   ratgeber: {
+    /** H1 der Übersicht. */
     title: "Ratgeber",
-    description: "[Platzhalter] Alle Beiträge des Krefelder Ladens, die neuesten zuerst.",
+    /** Title ohne Site-Namen (auch og:title); „ – Krefelder Laden“ hängt pageTitle() an. */
+    metaTitle: "Ratgeber für Krefeld",
+    description:
+      "Tipps, Termine und Hintergründe aus Krefeld: Märkte, Einkaufen, Ausflüge und Stadtgeschichte im Ratgeber von Krefelder Laden.",
     empty: "Noch keine Beiträge veröffentlicht.",
   },
   notFound: {
