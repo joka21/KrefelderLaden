@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 /*
  * WordPress-Adresse nur aus der Umgebungsvariablen (nie fest im Code).
@@ -42,4 +43,27 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Beim Build eine Zeile mit dem Wert von SITE_INDEXABLE, damit im Build-Log
+ * sichtbar ist, ob die Seiten indexierbar erzeugt werden. Gleiche Auswertung wie
+ * isIndexable() in lib/env.ts (dort nicht importierbar: server-only).
+ */
+function logIndexable(): void {
+  // Next.js lädt die Konfiguration beim Build mehrfach (auch in Kindprozessen,
+  // die die Umgebung erben) – die Zeile nur einmal ausgeben.
+  if (process.env.KL_INDEXABLE_LOGGED) {
+    return;
+  }
+  process.env.KL_INDEXABLE_LOGGED = "1";
+
+  const value = process.env.SITE_INDEXABLE?.trim() ?? "";
+  const indexable = value.toLowerCase() === "true";
+  console.log(`SITE_INDEXABLE: ${value || "(nicht gesetzt)"} (${indexable ? "indexierbar" : "noindex"})`);
+}
+
+export default function config(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD) {
+    logIndexable();
+  }
+  return nextConfig;
+}

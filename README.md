@@ -44,7 +44,7 @@ python scripts/build-fonts.py   # liest material/schriften/*.zip, schreibt app/f
 | `KLS_REVALIDATE_SECRET` | ja | Wert von `KLS_KREFELDER_LADEN_REVALIDATE_SECRET` (für `/api/revalidate`) |
 | `KLS_PREVIEW_SECRET` | ja | Wert von `KLS_KREFELDER_LADEN_PREVIEW_SECRET` (für `/api/preview`) |
 | `SITE_URL` | ja | Endgültige Domain: `https://krefelder-laden.de`. Basis für Canonical, Sitemap, Open Graph – auch auf der Testadresse. |
-| `SITE_INDEXABLE` | nein | Nur `true` erlaubt Suchmaschinen. Sonst (Standard): `noindex, nofollow` im HTML und im Header `X-Robots-Tag`, robots.txt mit `Disallow: /`. Auch mit `true` erhalten andere Hosts als der aus `SITE_URL` den Header `X-Robots-Tag: noindex`. |
+| `SITE_INDEXABLE` | nein | Nur `true` erlaubt Suchmaschinen. Sonst (Standard): `noindex, nofollow` im HTML und im Header `X-Robots-Tag`, robots.txt mit `Disallow: /`. Auch mit `true` erhalten andere Hosts als der aus `SITE_URL` den Header `X-Robots-Tag: noindex`. Der Build schreibt den gesehenen Wert ins Log, z. B. `SITE_INDEXABLE: true (indexierbar)`. |
 | `NEXT_PUBLIC_MATOMO_URL` | nein | Matomo-Adresse, z. B. `https://statistik.example.de/`. Leer = kein Tracking-Code. |
 | `NEXT_PUBLIC_MATOMO_SITE_ID` | nein | Matomo-Site-ID. Leer = kein Tracking-Code. |
 
