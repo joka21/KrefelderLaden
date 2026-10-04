@@ -21,7 +21,7 @@ export const RATGEBER_PATH = "/ratgeber/";
 
 export const LEGAL_LINKS = [
   { path: "/impressum/", label: "Impressum" },
-  { path: "/datenschutzerklaerung/", label: "Datenschutz" },
+  { path: "/datenschutz/", label: "Datenschutz" },
 ] as const;
 
 /** Bereiche, deren Zielpfad veröffentlicht ist. */
