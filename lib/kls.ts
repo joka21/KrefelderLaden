@@ -157,13 +157,18 @@ export interface KlsError {
   };
 }
 
+/**
+ * Fehler der API mit der aufgerufenen URL. Die URL enthält keine Secrets
+ * (API-Key und Preview-Secret gehen nur als Header mit).
+ */
 export class KlsApiError extends Error {
   constructor(
     readonly endpoint: string,
     readonly status: number,
     readonly code: string,
+    readonly url: string,
   ) {
-    super(`kls/v1 ${endpoint}: HTTP ${status} ${code}`);
+    super(`kls/v1 ${endpoint}: HTTP ${status} ${code} (${url})`);
     this.name = "KlsApiError";
   }
 }
@@ -196,7 +201,7 @@ export const REVALIDATE_SECONDS = 3600;
 /* Abruf                                                               */
 /* ------------------------------------------------------------------ */
 
-type Result<T> = { ok: true; data: T } | { ok: false; status: number; error: KlsError };
+type Result<T> = { ok: true; data: T } | { ok: false; status: number; error: KlsError; url: string };
 
 interface RequestOptions {
   tags?: string[];
@@ -233,12 +238,13 @@ async function request<T>(
     ok: false,
     status: response.status,
     error: { code: error.code ?? "unknown", message: error.message ?? "", data: error.data },
+    url: url.toString(),
   };
 }
 
 function unwrap<T>(endpoint: string, result: Result<T>): T {
   if (!result.ok) {
-    throw new KlsApiError(endpoint, result.status, result.error.code);
+    throw new KlsApiError(endpoint, result.status, result.error.code, result.url);
   }
   return result.data;
 }
@@ -266,7 +272,7 @@ export async function getContent(path: string): Promise<ContentResult> {
   if (result.status === 404 && result.error.code === "kls_not_found") {
     return { found: false, redirect: result.error.data?.redirect ?? null };
   }
-  throw new KlsApiError("content", result.status, result.error.code);
+  throw new KlsApiError("content", result.status, result.error.code, result.url);
 }
 
 /** GET /{site}/paths – veröffentlichte, indexierbare Pfade. */
@@ -315,5 +321,5 @@ export async function getPreview(id: number): Promise<KlsContent | null> {
   if (result.status === 404 || result.status === 401) {
     return null;
   }
-  throw new KlsApiError("preview", result.status, result.error.code);
+  throw new KlsApiError("preview", result.status, result.error.code, result.url);
 }
