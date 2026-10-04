@@ -14,7 +14,19 @@ import { absoluteUpload, onSiteUrl } from "@/lib/urls";
  * - Robots: Solange SITE_INDEXABLE nicht „true“ ist, gilt immer noindex, nofollow.
  * - URLs: Canonical und og:url zeigen auf SITE_URL, Bild-URLs auf /wp-content/uploads
  *   der Frontend-Domain (WordPress-Domain unsichtbar).
+ * - Bild: Liefert die API kein Bild, gilt das statische Standardbild DEFAULT_OG_IMAGE.
  */
+
+/**
+ * Standard-Vorschaubild (public/images/og-standard.png, erzeugt mit
+ * scripts/build-og-image.py) für og:image und twitter:image.
+ */
+const DEFAULT_OG_IMAGE = {
+  path: "/images/og-standard.png",
+  width: 1200,
+  height: 630,
+  alt: "Logo des Krefelder Ladens und gezeichnete Krähe",
+} as const;
 
 export function robots(api: KlsRobots | null): Metadata["robots"] {
   if (!isIndexable()) {
@@ -25,7 +37,8 @@ export function robots(api: KlsRobots | null): Metadata["robots"] {
 
 function ogImages(image: KlsImage | null) {
   if (!image) {
-    return undefined;
+    const { path, ...rest } = DEFAULT_OG_IMAGE;
+    return [{ url: siteUrl() + path, ...rest }];
   }
   return [
     {
@@ -68,7 +81,7 @@ export function contentMetadata(content: KlsContent, settings: KlsSettings): Met
       card: seo.twitter.card,
       title: seo.og.title,
       description: seo.og.description || undefined,
-      images: images?.map((image) => image.url),
+      images,
     },
   };
 }
@@ -107,7 +120,7 @@ export function defaultMetadata(
       card: "summary_large_image",
       title,
       description,
-      images: images?.map((image) => image.url),
+      images,
     },
   };
 }
