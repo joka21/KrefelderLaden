@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { FeatureNotice } from "@/components/feature-notice";
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
 import { SectionTiles } from "@/components/section-tiles";
 import kraehe from "@/public/images/kraehe.jpg";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { visibleSections } from "@/lib/sections";
+import { FEATURE, visibleSections } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -57,6 +58,8 @@ export default async function HomePage() {
           <p className="mt-5 max-w-prose text-lg leading-relaxed">{TEXTS.home.intro}</p>
         </div>
       </section>
+
+      {published.has(FEATURE.path) ? <FeatureNotice feature={FEATURE} /> : null}
 
       <SectionTiles sections={sections} heading={TEXTS.home.sectionsHeading} />
 

@@ -24,6 +24,17 @@ export const LEGAL_LINKS = [
   { path: "/datenschutz/", label: "Datenschutz" },
 ] as const;
 
+/**
+ * Schwerpunktthema: hervorgehobener Hinweis auf der Startseite zwischen
+ * Einleitung und Kacheln. Erscheint nur, wenn der Pfad veröffentlicht ist
+ * (/paths). Für ein neues Thema nur diese drei Werte ändern.
+ */
+export const FEATURE = {
+  path: "/weihnachten-in-krefeld/",
+  heading: "Weihnachten in Krefeld",
+  text: "Weihnachtsmärkte, Geschenke aus der Stadt und Aktionen der Vereine im Überblick.",
+} as const;
+
 /** Bereiche, deren Zielpfad veröffentlicht ist. */
 export function visibleSections(published: Set<string>): Section[] {
   return SECTIONS.filter((section) => published.has(section.path));
