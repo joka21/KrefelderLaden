@@ -30,7 +30,7 @@ export const LEGAL_LINKS = [
  * (/paths). Für ein neues Thema nur diese drei Werte ändern.
  */
 export const FEATURE = {
-  path: "/weihnachtsmarkt-krefeld/",
+  path: "/weihnachtsmaerkte-in-krefeld/",
   heading: "Weihnachtsmärkte in Krefeld",
   text: "Termine, Orte und Öffnungszeiten der Märkte in der Stadt.",
 } as const;
