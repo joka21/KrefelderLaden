@@ -31,8 +31,8 @@ export const LEGAL_LINKS = [
  */
 export const FEATURE = {
   path: "/weihnachtsmarkt-krefeld/",
-  heading: "Weihnachten in Krefeld",
-  text: "Weihnachtsmärkte, Geschenke aus der Stadt und Aktionen der Vereine im Überblick.",
+  heading: "Weihnachtsmärkte in Krefeld",
+  text: "Termine, Orte und Öffnungszeiten der Märkte in der Stadt.",
 } as const;
 
 /** Bereiche, deren Zielpfad veröffentlicht ist. */
