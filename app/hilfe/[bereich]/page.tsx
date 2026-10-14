@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { EinrichtungFilter } from "@/components/hilfe/einrichtung-filter";
+import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeBreadcrumb } from "@/components/hilfe/hilfe-breadcrumb";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { NotrufHinweis } from "@/components/hilfe/notruf-hinweis";
@@ -21,6 +22,7 @@ import {
   type Bereich,
   type Einrichtung,
 } from "@/lib/hilfe";
+import { FAQ } from "@/lib/hilfe-faq";
 import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
@@ -59,11 +61,14 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/[bereich]">
 /** Einrichtungen eines Bereichs, filterbar nach Stadtbezirk und Kategorie. */
 export default async function BereichPage({ params }: PageProps<"/hilfe/[bereich]">) {
   const { bereich: slug } = await params;
-  const [settings, { bereich, items }] = await Promise.all([getSettings(), load(slug)]);
+  const [settings, { bereich, items }, alle] = await Promise.all([getSettings(), load(slug), getEinrichtungen()]);
 
   if (items.length === 0) {
     notFound();
   }
+
+  // Links in „Gut zu wissen“ können auf Einrichtungen anderer Bereiche zeigen.
+  const veroeffentlicht = new Set(alle.map((item) => item.path));
 
   const bezirke = BEZIRKE.map((bezirk) => ({
     ...bezirk,
@@ -83,12 +88,15 @@ export default async function BereichPage({ params }: PageProps<"/hilfe/[bereich
         {bereich.slug === NOTRUF_BEREICH ? <NotrufHinweis className="mb-8" /> : null}
         <HilfeBreadcrumb items={[{ path: HILFE_PATH, label: HILFE_TEXTS.title }]} />
         <h1 className="text-4xl">{bereich.label}</h1>
-        <p className="mb-10 mt-5 max-w-prose text-lg leading-relaxed">{bereich.intro}</p>
-        <EinrichtungFilter
-          eintraege={items.map(toListEintrag)}
-          bezirke={bezirke}
-          kategorien={countBy(items, (item) => item.kategorie)}
-        />
+        <p className="mt-5 max-w-prose text-lg leading-relaxed">{bereich.intro}</p>
+        <GutZuWissen eintraege={FAQ[bereich.slug] ?? []} veroeffentlicht={veroeffentlicht} />
+        <div className="mt-10">
+          <EinrichtungFilter
+            eintraege={items.map(toListEintrag)}
+            bezirke={bezirke}
+            kategorien={countBy(items, (item) => item.kategorie)}
+          />
+        </div>
       </div>
       <HilfeQuelle />
     </>

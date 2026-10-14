@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { JsonLd } from "@/components/json-ld";
 import {
@@ -15,6 +16,7 @@ import {
   HILFE_TEXTS,
   overviewDescription,
 } from "@/lib/hilfe";
+import { FAQ } from "@/lib/hilfe-faq";
 import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
@@ -59,6 +61,8 @@ export default async function HilfePage() {
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
         <h1 className="text-4xl">{HILFE_TEXTS.title}</h1>
         <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
+
+        <GutZuWissen eintraege={FAQ.uebersicht} veroeffentlicht={new Set(items.map((item) => item.path))} />
 
         <section aria-labelledby="nach-thema" className="mt-12">
           <h2 id="nach-thema" className="mb-6 text-2xl">
