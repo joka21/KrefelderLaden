@@ -129,6 +129,22 @@ function begriff(term: KlsTerm): Begriff {
 }
 
 /**
+ * Anzeigenamen für Kategorien, deren Name aus den Open Data für Leser
+ * ungewohnt ist (nur Anzeige; in WordPress bleibt der Name der Stadt).
+ */
+const KATEGORIE_ANZEIGE: Record<string, string> = {
+  "teilstationaere-pflege": "Tagespflege",
+  "spezielles-wohnen": "Pflege-Wohngemeinschaft",
+  "sonstige-soziale-einrichtung": "Soziale Einrichtung",
+  sozialberatungsstelle: "Beratungsstelle",
+};
+
+function kategorie(term: KlsTerm): Begriff {
+  const { slug, name } = begriff(term);
+  return { slug, name: KATEGORIE_ANZEIGE[slug] ?? name };
+}
+
+/**
  * Baut eine Einrichtung aus Begriffen und Feldern; null, wenn Bereich oder
  * Stadtbezirk fehlen (dann gehört der Eintrag auf keine Seite).
  */
@@ -153,7 +169,7 @@ function toEinrichtung(
     // Ungekürzter Kurztext (KL Core ab 0.3.0); sonst der gekürzte Auszug der API.
     kurztext: fields.kurztext ?? base.excerpt,
     bereich: begriff(bereichTerm),
-    kategorie: kategorieTerm ? begriff(kategorieTerm) : null,
+    kategorie: kategorieTerm ? kategorie(kategorieTerm) : null,
     bezirk: begriff(bezirkTerm),
     adresse: fields.adresse,
     plz: fields.plz,
