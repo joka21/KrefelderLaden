@@ -7,9 +7,9 @@ import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
 import { SectionTiles } from "@/components/section-tiles";
 import kraehe from "@/public/images/kraehe.jpg";
-import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
+import { getContent, getPosts, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { FEATURE, visibleSections } from "@/lib/sections";
+import { FEATURE, getPublishedSectionPaths, visibleSections } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -35,7 +35,7 @@ export default async function HomePage() {
   const [settings, front, published, latest] = await Promise.all([
     getSettings(),
     frontPage(),
-    getPublishedPaths(),
+    getPublishedSectionPaths(),
     getPosts(6),
   ]);
   const sections = visibleSections(published);

@@ -3,6 +3,9 @@
  * Zielpfad veröffentlicht ist (Prüfung über /paths, siehe lib/kls.ts).
  */
 
+import { HILFE_PATH, hasEinrichtungen } from "@/lib/hilfe";
+import { getPublishedPaths } from "@/lib/kls";
+
 export type SectionColor = "green" | "orange" | "berry";
 
 export interface Section {
@@ -38,4 +41,17 @@ export const FEATURE = {
 /** Bereiche, deren Zielpfad veröffentlicht ist. */
 export function visibleSections(published: Set<string>): Section[] {
   return SECTIONS.filter((section) => published.has(section.path));
+}
+
+/**
+ * Veröffentlichte Pfade (/paths) plus „Hilfe finden“ (/hilfe/), sobald es
+ * mindestens eine veröffentlichte Einrichtung gibt – die Seite kommt aus dem
+ * Frontend, nicht aus WordPress.
+ */
+export async function getPublishedSectionPaths(): Promise<Set<string>> {
+  const [published, hilfe] = await Promise.all([getPublishedPaths(), hasEinrichtungen()]);
+  if (hilfe) {
+    published.add(HILFE_PATH);
+  }
+  return published;
 }
