@@ -290,6 +290,27 @@ export function bezirkDescription(bezirk: Bezirk, items: Einrichtung[]): string 
   return `${einrichtungenLabel(items.length)} im Stadtbezirk Krefeld-${bezirk.name}: ${list(bereiche)}.`;
 }
 
+/** Höchstlänge der Meta-Beschreibung (Zeichen). */
+const DESCRIPTION_MAX = 155;
+
+/**
+ * Meta-Beschreibung einer Einrichtung als ganzer Satz ohne Anführungszeichen:
+ * „<Name>: <Kategorie> in Krefeld-<Bezirk>, <Straße>. Adresse, Website und
+ * Angebot.“ Ohne Website entfällt „Website“. Ist der Satz länger als 155
+ * Zeichen, entfällt zuerst die Straße, dann der Schlusssatz – nie wird
+ * mitten im Satz gekürzt.
+ */
+export function einrichtungDescription(item: Einrichtung): string {
+  const was = item.kategorie ? `${item.kategorie.name} in Krefeld-${item.bezirk.name}` : `Einrichtung in Krefeld-${item.bezirk.name}`;
+  const schluss = item.website ? "Adresse, Website und Angebot." : "Adresse und Angebot.";
+  const kandidaten = [
+    `${item.name}: ${was}, ${item.adresse}. ${schluss}`,
+    `${item.name}: ${was}. ${schluss}`,
+    `${item.name}: ${was}.`,
+  ];
+  return kandidaten.find((text) => text.length <= DESCRIPTION_MAX) ?? kandidaten[kandidaten.length - 1];
+}
+
 /* ------------------------------------------------------------------ */
 /* JSON-LD der Detailseite                                             */
 /* ------------------------------------------------------------------ */

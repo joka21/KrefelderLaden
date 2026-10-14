@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 import {
   bereichPath,
   bezirkPath,
+  einrichtungDescription,
   einrichtungFromContent,
   einrichtungPath,
   einrichtungSchema,
@@ -70,7 +71,21 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung
   if (!result.found) {
     return {};
   }
-  return contentMetadata(result.content, await getSettings());
+
+  const metadata = contentMetadata(result.content, await getSettings());
+  const einrichtung = einrichtungFromContent(result.content);
+  if (!einrichtung) {
+    return metadata;
+  }
+
+  // Beschreibung aus den Daten statt des gekürzten Kurztexts der API.
+  const description = einrichtungDescription(einrichtung);
+  return {
+    ...metadata,
+    description,
+    openGraph: { ...metadata.openGraph, description },
+    twitter: { ...metadata.twitter, description },
+  };
 }
 
 /** Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse, Stadtbezirk, Website. */
