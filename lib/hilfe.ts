@@ -29,6 +29,8 @@ export const HILFE_TEXTS = {
 export interface Bereich {
   slug: string;
   label: string;
+  /** Seitentitel (ohne Site-Namen) mit den Begriffen, nach denen gesucht wird. */
+  metaTitle: string;
   intro: string;
 }
 
@@ -36,22 +38,26 @@ export const BEREICHE: readonly Bereich[] = [
   {
     slug: "pflege-senioren",
     label: "Pflege & Senioren",
+    metaTitle: "Pflegeheime, Tagespflege & Hospiz in Krefeld",
     intro:
       "Pflegeheime, Tagespflege, Pflege-Wohngemeinschaften und das Hospiz in Krefeld. Freie Plätze und Kosten klärt ihr bitte direkt mit der Einrichtung.",
   },
   {
     slug: "kinder-jugend",
     label: "Kinder & Jugend",
+    metaTitle: "Jugendtreffs & Jugendzentren in Krefeld",
     intro: "Jugendtreffs, Freizeiteinrichtungen und Wohneinrichtungen für Kinder und Jugendliche in Krefeld.",
   },
   {
     slug: "soziale-dienste-vereine",
     label: "Soziale Dienste & Vereine",
+    metaTitle: "Soziale Dienste & Vereine in Krefeld",
     intro: "Wohlfahrtsverbände, Vereine und soziale Dienste in Krefeld – von der Tafel bis zum Freiwilligenzentrum.",
   },
   {
     slug: "beratung",
     label: "Beratung",
+    metaTitle: "Beratungsstellen in Krefeld",
     intro:
       "Beratungsstellen in Krefeld – von Familien- und Schuldnerberatung bis zur Krisenhilfe. Termine vereinbart ihr direkt mit der Stelle.",
   },

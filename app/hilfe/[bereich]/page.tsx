@@ -42,8 +42,6 @@ async function load(slug: string): Promise<{ bereich: Bereich; items: Einrichtun
   return { bereich, items };
 }
 
-const metaTitle = (bereich: Bereich) => `${bereich.label} in Krefeld`;
-
 export async function generateMetadata({ params }: PageProps<"/hilfe/[bereich]">): Promise<Metadata> {
   const { bereich: slug } = await params;
   const bereich = findBereich(slug);
@@ -52,7 +50,7 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/[bereich]">
   }
   const [settings, { items }] = await Promise.all([getSettings(), load(slug)]);
   return defaultMetadata(settings, {
-    title: pageTitle(metaTitle(bereich), settings),
+    title: pageTitle(bereich.metaTitle, settings),
     description: bereichDescription(bereich, items),
     path: bereichPath(bereich.slug),
   });
@@ -76,7 +74,7 @@ export default async function BereichPage({ params }: PageProps<"/hilfe/[bereich
     <>
       <JsonLd
         data={defaultSchema(settings, {
-          name: pageTitle(metaTitle(bereich), settings),
+          name: pageTitle(bereich.metaTitle, settings),
           path: bereichPath(bereich.slug),
           type: "CollectionPage",
         })}
