@@ -27,7 +27,9 @@ import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
+// true wie bei /ratgeber/seite/: mit false liefert Next 16.3.8 nach einer
+// Revalidation 404 (NoFallbackError). Unbekannte Bezirke: notFound() in der Seite.
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return BEZIRKE.map((bezirk) => ({ bezirk: bezirk.slug }));

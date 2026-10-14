@@ -25,8 +25,9 @@ import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
 export const revalidate = 3600;
-// Nur die vier Bereiche; „stadtbezirk“ und „einrichtung“ sind eigene Routen.
-export const dynamicParams = false;
+// true wie bei /ratgeber/seite/: mit false liefert Next 16.3.8 nach einer
+// Revalidation 404 (NoFallbackError). Unbekannte Bereiche: notFound() in load().
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return BEREICHE.map((bereich) => ({ bereich: bereich.slug }));
