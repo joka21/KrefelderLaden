@@ -13,8 +13,10 @@ import {
   einrichtungFromContent,
   einrichtungPath,
   einrichtungSchema,
+  entfernung,
   findBereich,
   getEinrichtungen,
+  inDerNaehe,
   HILFE_PATH,
   HILFE_TEXTS,
 } from "@/lib/hilfe";
@@ -88,7 +90,10 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung
   };
 }
 
-/** Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse, Stadtbezirk, Website. */
+/**
+ * Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse,
+ * Stadtbezirk, Website und die 4 nächstgelegenen Einrichtungen (Luftlinie).
+ */
 export default async function EinrichtungPage({ params }: PageProps<"/hilfe/einrichtung/[slug]">) {
   const content = await load(toPath((await params).slug));
   const einrichtung = einrichtungFromContent(content);
@@ -97,8 +102,9 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe/einr
     notFound();
   }
 
-  const settings = await getSettings();
+  const [settings, alle] = await Promise.all([getSettings(), getEinrichtungen()]);
   const bereich = findBereich(einrichtung.bereich.slug);
+  const naehe = inDerNaehe(einrichtung, alle);
   const homeUrl = `${settings.site.frontend_url.replace(/\/+$/, "")}/`;
 
   return (
@@ -153,6 +159,30 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe/einr
             </>
           ) : null}
         </dl>
+
+        {naehe.length > 0 ? (
+          <section aria-labelledby="in-der-naehe" className="mt-12">
+            <h2 id="in-der-naehe" className="mb-4 text-2xl">
+              Weitere Einrichtungen in der Nähe
+            </h2>
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {naehe.map(({ einrichtung: andere, meter }) => (
+                <li key={andere.id} className="group relative rounded-lg border border-line p-4 hover:border-green">
+                  <Link
+                    href={andere.path}
+                    className="font-bold text-ink underline decoration-green decoration-2 underline-offset-4 after:absolute after:inset-0 group-hover:text-green"
+                  >
+                    {andere.name}
+                  </Link>
+                  <p className="mt-1 text-sm text-muted">
+                    {andere.kategorie ? `${andere.kategorie.name} · ` : ""}
+                    {entfernung(meter)} Luftlinie
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </article>
       <HilfeQuelle />
     </>

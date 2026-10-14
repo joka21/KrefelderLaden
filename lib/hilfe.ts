@@ -290,6 +290,45 @@ export function bezirkDescription(bezirk: Bezirk, items: Einrichtung[]): string 
   return `${einrichtungenLabel(items.length)} im Stadtbezirk Krefeld-${bezirk.name}: ${list(bereiche)}.`;
 }
 
+/* ------------------------------------------------------------------ */
+/* In der Nähe                                                         */
+/* ------------------------------------------------------------------ */
+
+/** Luftlinie zwischen zwei Punkten in Metern (Haversine, Erdradius 6371 km). */
+export function luftlinie(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const rad = (deg: number) => (deg * Math.PI) / 180;
+  const a =
+    Math.sin(rad(lat2 - lat1) / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lon2 - lon1) / 2) ** 2;
+  return 2 * 6_371_000 * Math.asin(Math.sqrt(a));
+}
+
+/** Die nächstgelegenen anderen Einrichtungen mit Entfernung in Metern. */
+export function inDerNaehe(item: Einrichtung, alle: Einrichtung[], anzahl = 4): { einrichtung: Einrichtung; meter: number }[] {
+  const lat = coordinate(item.lat);
+  const lon = coordinate(item.lon);
+  if (lat === null || lon === null) {
+    return [];
+  }
+
+  return alle
+    .filter((other) => other.id !== item.id)
+    .flatMap((other) => {
+      const oLat = coordinate(other.lat);
+      const oLon = coordinate(other.lon);
+      return oLat === null || oLon === null ? [] : [{ einrichtung: other, meter: luftlinie(lat, lon, oLat, oLon) }];
+    })
+    .sort((a, b) => a.meter - b.meter || byName(a.einrichtung, b.einrichtung))
+    .slice(0, anzahl);
+}
+
+/** „ca. 350 m“ bzw. „ca. 1,2 km“ (Luftlinie). */
+export function entfernung(meter: number): string {
+  if (meter < 1000) {
+    return `ca. ${Math.max(50, Math.round(meter / 50) * 50)} m`;
+  }
+  return `ca. ${(Math.round(meter / 100) / 10).toLocaleString("de-DE")} km`;
+}
+
 /** Höchstlänge der Meta-Beschreibung (Zeichen). */
 const DESCRIPTION_MAX = 155;
 
