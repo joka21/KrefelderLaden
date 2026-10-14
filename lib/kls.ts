@@ -87,6 +87,26 @@ export interface KlsTerm {
   slug: string;
 }
 
+/**
+ * Felder eines Anbieters (Plugin KL Core, Filter kl_setup_headless_content und
+ * kl_setup_headless_posts_item). „kurztext“ ist der ungekürzte Auszug.
+ */
+export interface KlsAnbieter {
+  kurztext?: string;
+  adresse: string;
+  plz: string;
+  lon: string;
+  lat: string;
+  website: string;
+  bezirk_bis_2025: string;
+  kl_bemerkung?: string;
+  kl_quelle: string;
+  kl_lizenz: string;
+  kl_geprueft_am: string;
+  kl_gueltig_bis: string;
+  notruf_hinweis: boolean;
+}
+
 export interface KlsContent {
   id: number;
   type: string;
@@ -107,6 +127,8 @@ export interface KlsContent {
   seo: KlsSeo;
   schema: KlsSchema;
   breadcrumbs: KlsBreadcrumb[];
+  /** Nur bei Anbietern (KL Core). */
+  anbieter?: KlsAnbieter;
   /** Nur bei /preview. */
   preview?: true;
 }
@@ -128,6 +150,9 @@ export interface KlsPostItem {
   modified: string | null;
   featured_image: KlsImage | null;
   noindex: boolean;
+  /** Nur bei Anbietern (KL Core): Begriffe und Felder. */
+  terms?: Record<string, KlsTerm[]>;
+  anbieter?: KlsAnbieter;
 }
 
 export interface KlsPostsPage {
@@ -289,9 +314,9 @@ export async function getPublishedPaths(): Promise<Set<string>> {
   return new Set((await getPaths()).map((item) => item.path));
 }
 
-/** GET /{site}/posts – neueste zuerst; limit 1–100, page ab 1. */
-export async function getPosts(limit: number, page = 1): Promise<KlsPostsPage> {
-  return unwrap("posts", await request<KlsPostsPage>("posts", { limit, page }, { tags: [TAGS.posts] }));
+/** GET /{site}/posts – neueste zuerst; limit 1–100, page ab 1, type Standard „post“. */
+export async function getPosts(limit: number, page = 1, type = "post"): Promise<KlsPostsPage> {
+  return unwrap("posts", await request<KlsPostsPage>("posts", { limit, page, type }, { tags: [TAGS.posts] }));
 }
 
 /** GET /{site}/redirects */
