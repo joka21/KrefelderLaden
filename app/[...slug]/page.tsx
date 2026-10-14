@@ -23,11 +23,14 @@ function toPath(slug: string[]): string {
   return `/${slug.map(decode).join("/")}/`;
 }
 
-/** Alle veröffentlichten Pfade vorab erzeugen; weitere werden bei Bedarf erzeugt. */
+/**
+ * Alle veröffentlichten Pfade vorab erzeugen; weitere werden bei Bedarf erzeugt.
+ * Einrichtungen (Typ „anbieter“) haben eine eigene Route (app/hilfe/einrichtung).
+ */
 export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
   try {
     return (await getPaths())
-      .filter((item) => item.path !== "/")
+      .filter((item) => item.path !== "/" && item.type !== "anbieter")
       .map((item) => ({ slug: item.path.split("/").filter(Boolean) }));
   } catch (error) {
     // Ohne erreichbare API werden alle Seiten bei Bedarf erzeugt.
