@@ -76,6 +76,11 @@ export async function POST(request: NextRequest) {
   revalidateTag(TAGS.posts, EXPIRE_NOW);
   revalidateTag(TAGS.paths, EXPIRE_NOW);
 
+  // Die Sitemap (Route Handler) zusätzlich über den Pfad verwerfen: Auf Vercel
+  // wurde sie über die Tags allein nicht neu erzeugt und blieb bis zum Ablauf
+  // von revalidate (1 h) auf dem Stand des Builds.
+  revalidatePath("/sitemap.xml");
+
   if (paths.includes("/ratgeber/")) {
     revalidatePath("/ratgeber/seite/[seite]", "page");
   }
