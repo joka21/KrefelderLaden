@@ -10,7 +10,7 @@ export const TEXTS = {
     title: "Krefelder Laden – Einkaufen, Hilfe & Tipps für Krefeld",
     /** Description (auch og:description) der Startseite, solange keine front_page gesetzt ist. */
     description:
-      "Märkte, Läden, Termine und Anlaufstellen in Krefeld: Krefelder Laden zeigt, wo Sie einkaufen, Hilfe finden und die Stadt entdecken. Vor Ort recherchiert.",
+      "Märkte, Läden, Termine und Anlaufstellen in Krefeld: Krefelder Laden zeigt, wo ihr einkauft, Hilfe findet und die Stadt entdeckt. Vor Ort recherchiert.",
     /** H1 der Startseite, solange keine front_page gesetzt ist. */
     heading: "Krefelder Laden: einkaufen, Hilfe finden, Krefeld entdecken",
     /** Einleitung neben der Krähe. */
