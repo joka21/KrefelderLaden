@@ -33,8 +33,10 @@ export async function SiteHeader() {
     <header className="border-b border-line bg-white">
       <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-4 sm:px-8">
         <Link href="/" className="block shrink-0 rounded-sm">
-          {/* Logo wie geliefert, nur auf weißem Hintergrund. */}
-          <Image src={logo} alt="Krefelder Laden" priority sizes="128px" className="h-auto w-24 sm:w-32" />
+          {/* Logo wie geliefert, nur auf weißem Hintergrund. Linktext unsichtbar als
+              Text (statt nur im alt), damit auch Crawler einen Ankertext sehen. */}
+          <Image src={logo} alt="" priority sizes="128px" className="h-auto w-24 sm:w-32" />
+          <span className="sr-only">Krefelder Laden – Startseite</span>
         </Link>
         <MainNav items={items} />
       </div>
