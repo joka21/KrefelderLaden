@@ -235,6 +235,33 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+/**
+ * Höchstens so viele gleichzeitige Abrufe beim Build. Der CMS-Server (Mittwald)
+ * schloss bei vielen parallelen Anfragen Verbindungen. Zusammen mit
+ * experimental.cpus = 1 (next.config.ts) gilt die Grenze für den ganzen Build.
+ * Zur Laufzeit gibt es keine Grenze.
+ */
+const BUILD_CONCURRENCY = 5;
+const isBuild = process.env.NEXT_PHASE === "phase-production-build";
+let running = 0;
+const waiting: (() => void)[] = [];
+
+async function limited<T>(task: () => Promise<T>): Promise<T> {
+  if (!isBuild) {
+    return task();
+  }
+  if (running >= BUILD_CONCURRENCY) {
+    await new Promise<void>((resolve) => waiting.push(resolve));
+  }
+  running++;
+  try {
+    return await task();
+  } finally {
+    running--;
+    waiting.shift()?.();
+  }
+}
+
 /** Wartezeiten vor den erneuten Versuchen (Millisekunden). */
 const RETRY_DELAYS = [500, 1500];
 
@@ -246,7 +273,7 @@ const RETRY_DELAYS = [500, 1500];
 async function fetchWithRetry(url: URL, init: RequestInit): Promise<Response> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await fetch(url, init);
+      return await limited(() => fetch(url, init));
     } catch (error) {
       if (!(error instanceof TypeError) || attempt >= RETRY_DELAYS.length) {
         throw error;

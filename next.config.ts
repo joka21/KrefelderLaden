@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   // folgt keinen Weiterleitungen).
   skipTrailingSlashRedirect: true,
   poweredByHeader: false,
+  // Seiten in nur einem Build-Prozess erzeugen, damit die Grenze für gleichzeitige
+  // API-Abrufe in lib/kls.ts (BUILD_CONCURRENCY) für den ganzen Build gilt.
+  experimental: { cpus: 1 },
 
   async rewrites() {
     if (!wpUrl) {
