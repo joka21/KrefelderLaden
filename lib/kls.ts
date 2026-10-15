@@ -235,6 +235,27 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+/** Wartezeiten vor den erneuten Versuchen (Millisekunden). */
+const RETRY_DELAYS = [500, 1500];
+
+/**
+ * fetch mit erneutem Versuch bei Netzwerkfehlern (z. B. „other side closed“,
+ * wenn der Server beim Build unter vielen parallelen Abrufen eine Verbindung
+ * schließt). HTTP-Fehler werden nicht wiederholt.
+ */
+async function fetchWithRetry(url: URL, init: RequestInit): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, init);
+    } catch (error) {
+      if (!(error instanceof TypeError) || attempt >= RETRY_DELAYS.length) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]));
+    }
+  }
+}
+
 async function request<T>(
   endpoint: string,
   params: Record<string, string | number> = {},
@@ -245,7 +266,7 @@ async function request<T>(
     url.searchParams.set(key, String(value));
   }
 
-  const response = await fetch(url, {
+  const response = await fetchWithRetry(url, {
     headers: { Accept: "application/json", "X-KLS-Key": klsApiKey(), ...options.headers },
     ...(options.noStore
       ? { cache: "no-store" as const }
