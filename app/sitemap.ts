@@ -12,11 +12,19 @@ function newest(items: Einrichtung[]): string | undefined {
 }
 
 /**
- * Sitemap aus /paths (darin auch die Detailseiten der Einrichtungen), ergänzt
- * um /, /ratgeber/ und die Übersichten von „Hilfe finden“ (URLs immer auf SITE_URL).
+ * Sitemap aus /paths, ergänzt um /, /ratgeber/, die Übersichten und die
+ * Detailseiten von „Hilfe finden“ (URLs immer auf SITE_URL).
+ *
+ * Kommen keine Einrichtungen zurück, wirft die Funktion: Ein Build schlägt
+ * dann fehl, eine Erneuerung zur Laufzeit behält den letzten guten Stand,
+ * statt eine Sitemap ohne /hilfe/ auszuliefern.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [paths, latest, hilfe] = await Promise.all([getPaths(), getPosts(1), getEinrichtungen()]);
+  if (hilfe.length === 0) {
+    throw new Error(`Sitemap: keine Einrichtungen von der API (/paths: ${paths.length} Pfade), letzter Stand bleibt.`);
+  }
+
   const base = siteUrl();
   const newestPost = latest.items[0]?.modified ?? undefined;
 
@@ -25,20 +33,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (latest.total > 0) {
     entries.set("/ratgeber/", { url: `${base}/ratgeber/`, lastModified: newestPost });
   }
-  if (hilfe.length > 0) {
-    entries.set(HILFE_PATH, { url: base + HILFE_PATH, lastModified: newest(hilfe) });
-    for (const bereich of BEREICHE) {
-      const items = hilfe.filter((item) => item.bereich.slug === bereich.slug);
-      if (items.length > 0) {
-        entries.set(bereichPath(bereich.slug), { url: base + bereichPath(bereich.slug), lastModified: newest(items) });
-      }
+  entries.set(HILFE_PATH, { url: base + HILFE_PATH, lastModified: newest(hilfe) });
+  for (const bereich of BEREICHE) {
+    const items = hilfe.filter((item) => item.bereich.slug === bereich.slug);
+    if (items.length > 0) {
+      entries.set(bereichPath(bereich.slug), { url: base + bereichPath(bereich.slug), lastModified: newest(items) });
     }
-    for (const bezirk of BEZIRKE) {
-      const items = hilfe.filter((item) => item.bezirk.slug === bezirk.slug);
-      if (items.length > 0) {
-        entries.set(bezirkPath(bezirk.slug), { url: base + bezirkPath(bezirk.slug), lastModified: newest(items) });
-      }
+  }
+  for (const bezirk of BEZIRKE) {
+    const items = hilfe.filter((item) => item.bezirk.slug === bezirk.slug);
+    if (items.length > 0) {
+      entries.set(bezirkPath(bezirk.slug), { url: base + bezirkPath(bezirk.slug), lastModified: newest(items) });
     }
+  }
+  // Detailseiten auch aus /posts, falls /paths sie einmal nicht enthält.
+  for (const item of hilfe) {
+    entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.modified ?? undefined });
   }
   for (const item of paths) {
     entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.lastmod });
