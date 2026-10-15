@@ -6,6 +6,7 @@ import { HilfeBreadcrumb } from "@/components/hilfe/hilfe-breadcrumb";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { NotrufHinweis } from "@/components/hilfe/notruf-hinweis";
 import { JsonLd } from "@/components/json-ld";
+import { decodeEntities } from "@/lib/entities";
 import {
   bereichPath,
   bezirkPath,
@@ -23,6 +24,7 @@ import {
 import { getContent, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
 import { contentMetadata } from "@/lib/seo";
+import { fitTitle } from "@/lib/titles";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -84,6 +86,8 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung
   const description = einrichtungDescription(einrichtung);
   return {
     ...metadata,
+    // Höchstens 60 Zeichen (lange Namen von Trägern); og:title bleibt vollständig.
+    title: { absolute: fitTitle(result.content.seo.title, decodeEntities(einrichtung.name)) },
     description,
     openGraph: { ...metadata.openGraph, description },
     twitter: { ...metadata.twitter, description },
