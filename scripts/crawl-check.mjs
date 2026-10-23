@@ -2,7 +2,11 @@
 // kein Canonical im <head>, Status ≠ 200, Canonical ≠ eigene URL).
 // Nur lokal ausführen, nicht Teil der Website.
 //
-// Aufruf: node scripts/crawl-check.mjs [browser|semrush] [--json datei]
+// Aufruf: node scripts/crawl-check.mjs [browser|semrush|googlebot] [--slash] [--json datei]
+//
+// --slash: statt zu crawlen jede Sitemap-URL ohne abschließenden Schrägstrich
+// aufrufen und prüfen, dass genau eine Weiterleitung (301/308) direkt auf die
+// Sitemap-URL führt und diese mit 200 antwortet.
 import { writeFileSync } from "node:fs";
 
 import * as cheerio from "cheerio";
@@ -15,6 +19,7 @@ const USER_AGENTS = {
   browser:
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
   semrush: "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",
+  googlebot: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
 };
 
 /** Zusätzlich geprüfte URLs (Varianten, alte WordPress-Pfade, Paginierung). */
@@ -41,7 +46,8 @@ const EXTRA = [
   `${ORIGIN}/index.php`,
 ];
 
-const mode = process.argv[2] === "semrush" ? "semrush" : "browser";
+const mode = USER_AGENTS[process.argv[2]] ? process.argv[2] : "browser";
+const slashMode = process.argv.includes("--slash");
 const jsonIndex = process.argv.indexOf("--json");
 const jsonFile = jsonIndex > 0 ? process.argv[jsonIndex + 1] : null;
 const userAgent = USER_AGENTS[mode];
@@ -140,6 +146,59 @@ function issues(row) {
   if (row.status === 200 && !row.canonical) list.push(row.canonicalInBody ? "Canonical nur im <body>" : "kein Canonical");
   if (row.canonical && row.canonical !== row.url) list.push("Canonical ≠ eigene URL");
   return list;
+}
+
+/** Weiterleitungskette ab url (höchstens 10 Schritte): [{ url, status, location }]. */
+async function chain(url) {
+  const hops = [];
+  let current = url;
+  for (let step = 0; step < 10; step++) {
+    const response = await get(current);
+    await response.arrayBuffer();
+    const location = response.headers.get("location");
+    const next = location ? new URL(location, current).toString() : "";
+    hops.push({ url: current, status: response.status, location: next });
+    if (!next || response.status < 300 || response.status >= 400) break;
+    current = next;
+  }
+  return hops;
+}
+
+async function slashCheck() {
+  const sitemap = await loadSitemap();
+  const rows = [];
+  for (const target of sitemap) {
+    const url = target.replace(/\/$/, "");
+    if (url === ORIGIN) continue; // Startseite: ohne Pfad gibt es keine Variante ohne „/“
+    const hops = await chain(url);
+    const redirects = hops.filter((hop) => hop.location);
+    const final = hops.at(-1);
+    const problems = [];
+    if (redirects.length !== 1) problems.push(`${redirects.length} Weiterleitungen`);
+    if (redirects[0] && ![301, 308].includes(redirects[0].status)) problems.push(`Status ${redirects[0].status}`);
+    if (redirects[0] && redirects[0].location !== target) problems.push("erstes Ziel ≠ Sitemap-URL");
+    if (final.url !== target || final.status !== 200) problems.push(`Ende ${final.status} ${final.url}`);
+    rows.push({ url, target, hops, problems });
+    process.stderr.write(`\r${rows.length} geprüft   `);
+  }
+  process.stderr.write("\n");
+
+  const flagged = rows.filter((row) => row.problems.length > 0);
+  console.log(`\nUser-Agent: ${mode} | Modus: ohne Schrägstrich | geprüft: ${rows.length} | auffällig: ${flagged.length}\n`);
+  if (flagged.length > 0) {
+    console.log("| URL ohne „/“ | Kette | Problem |");
+    console.log("|---|---|---|");
+    for (const row of flagged) {
+      const path = row.hops.map((hop) => `${hop.status}${hop.location ? ` → ${hop.location}` : ""}`).join(" ⇒ ");
+      console.log(`| ${row.url} | ${path} | ${row.problems.join("; ")} |`);
+    }
+  }
+  if (jsonFile) writeFileSync(jsonFile, JSON.stringify({ mode, slash: true, rows }, null, 2));
+}
+
+if (slashMode) {
+  await slashCheck();
+  process.exit(0);
 }
 
 const { sitemap, results } = await crawl();
