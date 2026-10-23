@@ -46,3 +46,6 @@ next-env.d.ts
 /material/schriften/*
 /material/logo/*
 /material/kraehe/*
+
+# Ergebnisse von scripts/crawl-check.mjs
+crawl-*.json
