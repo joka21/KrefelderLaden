@@ -6,9 +6,11 @@ import { NextResponse, type NextRequest } from "next/server";
  * 1. Schutz vor Indexierung: Solange SITE_INDEXABLE nicht „true“ ist oder der
  *    Host nicht dem aus SITE_URL entspricht, trägt
  *    jede Antwort den Header „X-Robots-Tag: noindex, nofollow“.
- * 2. Seiten ohne abschließenden Schrägstrich → 308 auf „/…/“ (API-Routen
+ * 2. Feste Weiterleitungen (FIXED_REDIRECTS) → 308, mit oder ohne Schrägstrich
+ *    in einem Schritt.
+ * 3. Seiten ohne abschließenden Schrägstrich → 308 auf „/…/“ (API-Routen
  *    ausgenommen, siehe skipTrailingSlashRedirect in next.config.ts).
- * 3. Weiterleitungen aus GET /{site}/redirects mit dem gelieferten Statuscode,
+ * 4. Weiterleitungen aus GET /{site}/redirects mit dem gelieferten Statuscode,
  *    ohne neuen Build. Die Liste kommt über /api/redirects aus dem Next.js-Cache
  *    (dort von /api/revalidate geleert) und wird hier höchstens CACHE_MS lang
  *    zwischengespeichert. Ist sie nicht abrufbar, gilt die Rückfallebene in
@@ -16,6 +18,12 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 
 const CACHE_MS = 30_000;
+
+/** Pfade ohne eigene Seite (übergeordnete Pfade von „Hilfe finden“) → Ziel. */
+const FIXED_REDIRECTS: Record<string, string> = {
+  "/hilfe/einrichtung/": "/hilfe/",
+  "/hilfe/stadtbezirk/": "/hilfe/",
+};
 const STATUS_CODES = new Set([301, 302, 303, 307, 308]);
 
 type RedirectMap = Map<string, { destination: string; status: number }>;
@@ -90,6 +98,11 @@ export async function proxy(request: NextRequest) {
   const isPage = !pathname.startsWith("/api/") && !pathname.startsWith("/wp-content/");
 
   if (isPage && (request.method === "GET" || request.method === "HEAD")) {
+    const fixed = FIXED_REDIRECTS[normalize(pathname)];
+    if (fixed) {
+      return withRobots(request, NextResponse.redirect(new URL(fixed, request.url), 308));
+    }
+
     // Seiten immer mit abschließendem Schrägstrich (Dateien wie /robots.txt ausgenommen).
     if (!pathname.endsWith("/") && !/\.[a-z0-9]+$/i.test(pathname)) {
       // Einfache URL statt nextUrl.clone(): NextURL entfernt den angehängten Schrägstrich wieder.
