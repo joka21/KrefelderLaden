@@ -5,7 +5,7 @@ import { ContentView } from "@/components/content-view";
 import { JsonLd } from "@/components/json-ld";
 import { getContent, getPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { contentMetadata } from "@/lib/seo";
+import { contentMetadata, contentSchema } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -73,11 +73,11 @@ export async function generateMetadata({ params }: PageProps<"/[...slug]">): Pro
 
 export default async function ContentPage({ params }: PageProps<"/[...slug]">) {
   const { slug } = await params;
-  const content = await load(toPath(slug));
+  const [content, settings] = await Promise.all([load(toPath(slug)), getSettings()]);
 
   return (
     <>
-      <JsonLd data={content.schema} />
+      <JsonLd data={contentSchema(content, settings)} />
       <ContentView content={content} />
     </>
   );

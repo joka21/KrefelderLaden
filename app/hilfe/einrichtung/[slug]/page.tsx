@@ -6,7 +6,6 @@ import { HilfeBreadcrumb } from "@/components/hilfe/hilfe-breadcrumb";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { NotrufHinweis } from "@/components/hilfe/notruf-hinweis";
 import { JsonLd } from "@/components/json-ld";
-import { decodeEntities } from "@/lib/entities";
 import {
   bereichPath,
   bezirkPath,
@@ -23,8 +22,7 @@ import {
 } from "@/lib/hilfe";
 import { getContent, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { contentMetadata } from "@/lib/seo";
-import { fitTitle } from "@/lib/titles";
+import { contentMetadata, contentSchema } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -84,10 +82,9 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung
 
   // Beschreibung aus den Daten statt des gekürzten Kurztexts der API.
   const description = einrichtungDescription(einrichtung);
+  // Title (höchstens 60 Zeichen, nie gleich der H1) setzt contentMetadata.
   return {
     ...metadata,
-    // Höchstens 60 Zeichen (lange Namen von Trägern); og:title bleibt vollständig.
-    title: { absolute: fitTitle(result.content.seo.title, decodeEntities(einrichtung.name)) },
     description,
     openGraph: { ...metadata.openGraph, description },
     twitter: { ...metadata.twitter, description },
@@ -113,7 +110,14 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe/einr
 
   return (
     <>
-      <JsonLd data={einrichtungSchema(content, einrichtung, homeUrl, settings.site.name)} />
+      <JsonLd
+        data={einrichtungSchema(
+          { ...content, schema: contentSchema(content, settings) },
+          einrichtung,
+          homeUrl,
+          settings.site.name,
+        )}
+      />
       <article className="mx-auto max-w-3xl px-5 pt-10 sm:px-8 sm:pt-14">
         {einrichtung.notruf ? <NotrufHinweis className="mb-8" /> : null}
         <HilfeBreadcrumb
