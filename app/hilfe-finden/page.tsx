@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,6 +7,7 @@ import { EinrichtungFilter } from "@/components/hilfe/einrichtung-filter";
 import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { JsonLd } from "@/components/json-ld";
+import kraehe from "@/public/images/hilfe-finden.png";
 import {
   BEREICHE,
   BEZIRKE,
@@ -78,8 +80,20 @@ export default async function HilfePage() {
         )}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
-        <h1 className="text-4xl">{HILFE_TEXTS.heading}</h1>
-        <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
+        <div className="grid items-center gap-8 md:grid-cols-[minmax(0,6fr)_minmax(0,4fr)]">
+          <div>
+            <h1 className="text-4xl">{HILFE_TEXTS.heading}</h1>
+            <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
+          </div>
+          {/* Motiv wie die Krähe der Startseite auf weißem Hintergrund; mobil unter dem Text. */}
+          <Image
+            src={kraehe}
+            alt="Gezeichnete Krähe vor einem ockerfarbenen Farbfleck"
+            priority
+            sizes="(min-width: 768px) 22rem, 60vw"
+            className="mx-auto h-auto w-3/5 max-w-sm md:w-full md:max-w-[22rem]"
+          />
+        </div>
 
         <section aria-labelledby="einrichtungen" className="mt-10">
           <h2 id="einrichtungen" className="mb-4 text-2xl">
