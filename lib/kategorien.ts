@@ -9,12 +9,37 @@ import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCat
  * Kacheln auf der Startseite). imMenue: false nimmt eine Kategorie aus Menü
  * und Kacheln; ihre Seite bleibt erreichbar. Kategorien werden über den Slug
  * aus WordPress geholt, nicht über die ID.
+ *
+ * Optionale Texte der Kategorieseite (ohne Angabe gilt der Kategoriename bzw.
+ * die Beschreibung aus WordPress): heading (H1), eyebrow (kleine Zeile über der
+ * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an),
+ * metaDescription (höchstens 155 Zeichen).
  */
-export const KATEGORIEN: readonly { slug: string; label: string; imMenue: boolean }[] = [
+export interface Kategorie {
+  slug: string;
+  /** Menüpunkt (und Kachel). */
+  label: string;
+  imMenue: boolean;
+  heading?: string;
+  eyebrow?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
+export const KATEGORIEN: readonly Kategorie[] = [
   // Nach dem 31.12. auf imMenue: false setzen.
   { slug: "weihnachten", label: "Weihnachten", imMenue: true },
   { slug: "second-hand", label: "Second Hand", imMenue: true },
-  { slug: "niederrhein-tapas", label: "Niederrhein Tapas", imMenue: true },
+  {
+    slug: "niederrhein-tapas",
+    label: "Niederrhein Tapas",
+    imMenue: true,
+    eyebrow: "Niederrhein Tapas",
+    heading: "Gut essen in Krefeld",
+    metaTitle: "Gut essen in Krefeld: Niederrhein Tapas",
+    metaDescription:
+      "Gut essen in Krefeld: Wir suchen die besten Adressen und bringen Rezepte mit Zutaten vom Niederrhein auf deinen Tisch.",
+  },
   { slug: "mein-krefeld", label: "Mein Krefeld", imMenue: true },
   { slug: "hilfe-finden", label: "Hilfe finden", imMenue: true },
 ];
@@ -40,8 +65,12 @@ export function menueKategorien() {
   }));
 }
 
+export function findKategorie(slug: string): Kategorie | undefined {
+  return KATEGORIEN.find((kategorie) => kategorie.slug === slug);
+}
+
 export function isKategorie(slug: string): boolean {
-  return KATEGORIEN.some((kategorie) => kategorie.slug === slug);
+  return findKategorie(slug) !== undefined;
 }
 
 export interface KategorieDaten {

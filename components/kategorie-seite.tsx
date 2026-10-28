@@ -5,14 +5,21 @@ import { JsonLd } from "@/components/json-ld";
 import { pageHref, Pagination } from "@/components/pagination";
 import { PostList } from "@/components/post-list";
 import { decodeEntities } from "@/lib/entities";
-import { getKategorieSeite, KATEGORIE_TEXTS, kategoriePath, type KategorieDaten } from "@/lib/kategorien";
+import { findKategorie, getKategorieSeite, KATEGORIE_TEXTS, kategoriePath, type KategorieDaten } from "@/lib/kategorien";
 import { getSettings, type WpCategory } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
-/** Name der Kategorie, mit „ – Seite n“ ab Seite 2. */
+const seite = (text: string, page: number) => (page > 1 ? `${text} – Seite ${page}` : text);
+
+/** H1: heading aus lib/kategorien.ts oder der Kategoriename, mit „ – Seite n“ ab Seite 2. */
 function heading(kategorie: WpCategory, page: number): string {
-  const name = decodeEntities(kategorie.name);
-  return page > 1 ? `${name} – Seite ${page}` : name;
+  return seite(findKategorie(kategorie.slug)?.heading ?? decodeEntities(kategorie.name), page);
+}
+
+/** Title ohne Site-Namen: metaTitle aus lib/kategorien.ts oder wie die H1. */
+function metaTitle(kategorie: WpCategory, page: number): string {
+  const titel = findKategorie(kategorie.slug)?.metaTitle;
+  return titel ? seite(titel, page) : heading(kategorie, page);
 }
 
 /** Beschreibung aus WordPress als Text (ohne HTML). */
@@ -37,8 +44,11 @@ export async function kategorieMetadata(slug: string, page: number): Promise<Met
   }
   const name = decodeEntities(daten.kategorie.name);
   return defaultMetadata(settings, {
-    title: pageTitle(heading(daten.kategorie, page), settings),
-    description: kategorieBeschreibung(daten.kategorie) || `${name}: Beiträge aus Krefeld von Krefelder Laden.`,
+    title: pageTitle(metaTitle(daten.kategorie, page), settings),
+    description:
+      findKategorie(slug)?.metaDescription ||
+      kategorieBeschreibung(daten.kategorie) ||
+      `${name}: Beiträge aus Krefeld von Krefelder Laden.`,
     path: pageHref(kategoriePath(slug), page),
     noindex: daten.total === 0,
   });
@@ -67,17 +77,19 @@ export function KategorieBeitraege({
 export async function KategorieSeite({ slug, page }: { slug: string; page: number }) {
   const [settings, daten] = await Promise.all([getSettings(), loadKategorie(slug, page)]);
   const beschreibung = page === 1 ? kategorieBeschreibung(daten.kategorie) : "";
+  const eyebrow = findKategorie(slug)?.eyebrow;
 
   return (
     <>
       <JsonLd
         data={defaultSchema(settings, {
-          name: pageTitle(heading(daten.kategorie, page), settings),
+          name: pageTitle(metaTitle(daten.kategorie, page), settings),
           path: pageHref(kategoriePath(slug), page),
           type: "CollectionPage",
         })}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
+        {eyebrow ? <p className="mb-2 text-sm font-bold uppercase tracking-wide text-green">{eyebrow}</p> : null}
         <h1 className="text-4xl">{heading(daten.kategorie, page)}</h1>
         {beschreibung ? <p className="mt-5 max-w-prose text-lg leading-relaxed">{beschreibung}</p> : null}
         <div className="mt-10">
