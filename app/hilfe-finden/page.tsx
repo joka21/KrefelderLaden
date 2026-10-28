@@ -2,23 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { EinrichtungFilter } from "@/components/hilfe/einrichtung-filter";
 import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { JsonLd } from "@/components/json-ld";
-import { KategorieBeitraege, loadKategorie } from "@/components/kategorie-seite";
 import {
   BEREICHE,
   BEZIRKE,
   bereichPath,
   bezirkPath,
-  einrichtungenLabel,
+  findBereich,
   getEinrichtungen,
   HILFE_PATH,
   HILFE_TEXTS,
   overviewDescription,
+  toListEintrag,
 } from "@/lib/hilfe";
 import { FAQ } from "@/lib/hilfe-faq";
-import { HILFE_KATEGORIE, KATEGORIE_TEXTS } from "@/lib/kategorien";
 import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
@@ -33,17 +33,16 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+const linkClass =
+  "inline-flex min-h-11 items-center rounded-md border border-line px-4 font-bold text-green underline-offset-4 hover:border-green hover:underline";
+
 /**
- * Übersicht: Einleitung, Beiträge der Kategorie „Hilfe finden“ (ohne Beiträge
- * der Hinweissatz), darunter das Verzeichnis: Bereiche als Kacheln mit Anzahl,
- * Stadtbezirke als Links. Immer indexierbar, auch bei leerer Kategorie.
+ * Übersicht: Einleitung, Filter nach Thema (Bereich) und Stadtteil (Auswahl in
+ * der URL), alle passenden Einrichtungen als Kacheln, „Gut zu wissen“ und
+ * Links auf die Bereichs- und Stadtbezirksseiten.
  */
 export default async function HilfePage() {
-  const [settings, items, beitraege] = await Promise.all([
-    getSettings(),
-    getEinrichtungen(),
-    loadKategorie(HILFE_KATEGORIE, 1),
-  ]);
+  const [settings, items] = await Promise.all([getSettings(), getEinrichtungen()]);
 
   // Ohne veröffentlichte Einrichtungen gibt es die Seite nicht (auch nicht in der Navigation).
   if (items.length === 0) {
@@ -51,13 +50,19 @@ export default async function HilfePage() {
   }
 
   const bereiche = BEREICHE.map((bereich) => ({
-    ...bereich,
+    slug: bereich.slug,
+    name: bereich.label,
     count: items.filter((item) => item.bereich.slug === bereich.slug).length,
   })).filter((bereich) => bereich.count > 0);
   const bezirke = BEZIRKE.map((bezirk) => ({
     ...bezirk,
     count: items.filter((item) => item.bezirk.slug === bezirk.slug).length,
   })).filter((bezirk) => bezirk.count > 0);
+  // Thema auf der Kachel wie im Filter (Bezeichnung aus BEREICHE).
+  const eintraege = items.map((item) => ({
+    ...toListEintrag(item),
+    bereich: { slug: item.bereich.slug, name: findBereich(item.bereich.slug)?.label ?? item.bereich.name },
+  }));
 
   return (
     <>
@@ -72,30 +77,28 @@ export default async function HilfePage() {
         <h1 className="text-4xl">{HILFE_TEXTS.title}</h1>
         <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
 
-        <section aria-labelledby="beitraege" className="mt-12">
-          <h2 id="beitraege" className="mb-6 text-2xl">
-            {KATEGORIE_TEXTS.postsHeading}
-          </h2>
-          <KategorieBeitraege daten={beitraege} headingLevel={3} />
-        </section>
+        <div className="mt-10">
+          <EinrichtungFilter
+            eintraege={eintraege}
+            bereiche={bereiche}
+            bezirke={bezirke}
+            kategorien={[]}
+            variante="verzeichnis"
+          />
+        </div>
 
         <GutZuWissen eintraege={FAQ.uebersicht} veroeffentlicht={new Set(items.map((item) => item.path))} />
 
         <section aria-labelledby="nach-thema" className="mt-12">
-          <h2 id="nach-thema" className="mb-6 text-2xl">
+          <h2 id="nach-thema" className="mb-4 text-2xl">
             {HILFE_TEXTS.bereicheHeading}
           </h2>
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="flex flex-wrap gap-3">
             {bereiche.map((bereich) => (
               <li key={bereich.slug}>
-                <Link
-                  href={bereichPath(bereich.slug)}
-                  className="group flex min-h-32 flex-col justify-end rounded-lg bg-orange p-6 text-ink"
-                >
-                  <span className="font-heading text-2xl font-bold underline-offset-4 group-hover:underline">
-                    {bereich.label}
-                  </span>
-                  <span className="mt-1">{einrichtungenLabel(bereich.count)}</span>
+                <Link href={bereichPath(bereich.slug)} className={linkClass}>
+                  {bereich.name}
+                  <span className="ml-2 font-normal text-muted">({bereich.count})</span>
                 </Link>
               </li>
             ))}
@@ -103,16 +106,13 @@ export default async function HilfePage() {
         </section>
 
         <section aria-labelledby="nach-bezirk" className="mt-12">
-          <h2 id="nach-bezirk" className="mb-6 text-2xl">
+          <h2 id="nach-bezirk" className="mb-4 text-2xl">
             {HILFE_TEXTS.bezirkeHeading}
           </h2>
           <ul className="flex flex-wrap gap-3">
             {bezirke.map((bezirk) => (
               <li key={bezirk.slug}>
-                <Link
-                  href={bezirkPath(bezirk.slug)}
-                  className="inline-flex min-h-11 items-center rounded-md border border-line px-4 font-bold text-green underline-offset-4 hover:border-green hover:underline"
-                >
+                <Link href={bezirkPath(bezirk.slug)} className={linkClass}>
                   Krefeld-{bezirk.name}
                   <span className="ml-2 font-normal text-muted">({bezirk.count})</span>
                 </Link>

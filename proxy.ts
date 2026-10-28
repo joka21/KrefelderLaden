@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * 1. Schutz vor Indexierung: Solange SITE_INDEXABLE nicht „true“ ist oder der
  *    Host nicht dem aus SITE_URL entspricht, trägt
  *    jede Antwort den Header „X-Robots-Tag: noindex, nofollow“.
- * 2. Feste Weiterleitungen (FIXED_REDIRECTS) und umgezogene Bereiche
+ * 2. Feste Weiterleitungen (FIXED_REDIRECTS, PREFIX_REDIRECTS) und umgezogene Bereiche
  *    (MOVED_PREFIXES) → 301, mit oder ohne Schrägstrich in einem Schritt.
  * 3. Seiten ohne abschließenden Schrägstrich → 308 auf „/…/“ (API-Routen
  *    ausgenommen, siehe skipTrailingSlashRedirect in next.config.ts).
@@ -26,6 +26,12 @@ const FIXED_REDIRECTS: Record<string, string> = {
   "/hilfe-finden/einrichtung/": "/hilfe-finden/",
   "/hilfe-finden/stadtbezirk/": "/hilfe-finden/",
 };
+
+/** Pfade unterhalb eines Präfixes ohne eigene Seiten mehr → festes Ziel. */
+const PREFIX_REDIRECTS: [prefix: string, to: string][] = [
+  // Beiträge stehen nicht mehr auf „Hilfe finden“ (Route app/hilfe-finden/seite bleibt ungenutzt).
+  ["/hilfe-finden/seite/", "/hilfe-finden/"],
+];
 
 /** Umgezogene Bereiche: alter Präfix → neuer Präfix, Rest des Pfads bleibt. */
 const MOVED_PREFIXES: [from: string, to: string][] = [["/hilfe/", "/hilfe-finden/"]];
@@ -104,7 +110,7 @@ export async function proxy(request: NextRequest) {
 
   if (isPage && (request.method === "GET" || request.method === "HEAD")) {
     const path = normalize(pathname);
-    const fixed = FIXED_REDIRECTS[path];
+    const fixed = FIXED_REDIRECTS[path] ?? PREFIX_REDIRECTS.find(([prefix]) => path.startsWith(prefix))?.[1];
     if (fixed) {
       return withRobots(request, NextResponse.redirect(new URL(fixed, request.url), 301));
     }

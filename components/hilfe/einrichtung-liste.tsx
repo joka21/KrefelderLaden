@@ -5,6 +5,7 @@ export interface ListEintrag {
   id: number;
   path: string;
   name: string;
+  bereich: { slug: string; name: string };
   kategorie: { slug: string; name: string } | null;
   bezirk: { slug: string; name: string };
   bezirkBis2025: string;

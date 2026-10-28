@@ -227,6 +227,7 @@ export function toListEintrag(item: Einrichtung): ListEintrag {
     id: item.id,
     path: item.path,
     name: item.name,
+    bereich: item.bereich,
     kategorie: item.kategorie,
     bezirk: item.bezirk,
     bezirkBis2025: item.bezirkBis2025,
