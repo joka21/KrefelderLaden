@@ -15,6 +15,7 @@ import {
   getEinrichtungen,
   HILFE_PATH,
   HILFE_TEXTS,
+  hilfeUebersichtSchema,
   overviewDescription,
   toListEintrag,
 } from "@/lib/hilfe";
@@ -67,17 +68,23 @@ export default async function HilfePage() {
   return (
     <>
       <JsonLd
-        data={defaultSchema(settings, {
-          name: pageTitle(HILFE_TEXTS.metaTitle, settings),
-          path: HILFE_PATH,
-          type: "CollectionPage",
-        })}
+        data={hilfeUebersichtSchema(
+          defaultSchema(settings, {
+            name: pageTitle(HILFE_TEXTS.metaTitle, settings),
+            path: HILFE_PATH,
+            type: "CollectionPage",
+          }),
+          { path: HILFE_PATH, siteName: settings.site.name, faq: FAQ.uebersicht },
+        )}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
-        <h1 className="text-4xl">{HILFE_TEXTS.title}</h1>
+        <h1 className="text-4xl">{HILFE_TEXTS.heading}</h1>
         <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
 
-        <div className="mt-10">
+        <section aria-labelledby="einrichtungen" className="mt-10">
+          <h2 id="einrichtungen" className="mb-4 text-2xl">
+            {HILFE_TEXTS.einrichtungenHeading}
+          </h2>
           <EinrichtungFilter
             eintraege={eintraege}
             bereiche={bereiche}
@@ -85,7 +92,7 @@ export default async function HilfePage() {
             kategorien={[]}
             variante="verzeichnis"
           />
-        </div>
+        </section>
 
         <GutZuWissen eintraege={FAQ.uebersicht} veroeffentlicht={new Set(items.map((item) => item.path))} />
 

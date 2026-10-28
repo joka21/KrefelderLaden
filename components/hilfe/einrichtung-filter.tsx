@@ -89,12 +89,15 @@ export function EinrichtungFilter({
   kategorien,
   bereiche = [],
   variante = "liste",
+  headingLevel = 2,
 }: {
   eintraege: ListEintrag[];
   bezirke: Option[];
   kategorien: Option[];
   bereiche?: Option[];
   variante?: "liste" | "verzeichnis";
+  /** Überschriften-Ebene der Listeneinträge (Variante „liste“); Kacheln sind immer H3. */
+  headingLevel?: 2 | 3;
 }) {
   const verzeichnis = variante === "verzeichnis";
   const [auswahl, setAuswahl] = useAuswahl(verzeichnis, bereiche, bezirke);
@@ -203,7 +206,7 @@ export function EinrichtungFilter({
       ) : verzeichnis ? (
         <EinrichtungKacheln eintraege={sichtbar} />
       ) : (
-        <EinrichtungListe eintraege={sichtbar} />
+        <EinrichtungListe eintraege={sichtbar} headingLevel={headingLevel} />
       )}
     </>
   );

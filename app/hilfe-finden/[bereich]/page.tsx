@@ -17,6 +17,7 @@ import {
   getEinrichtungen,
   HILFE_PATH,
   HILFE_TEXTS,
+  hilfeUebersichtSchema,
   NOTRUF_BEREICH,
   toListEintrag,
   type Bereich,
@@ -78,11 +79,22 @@ export default async function BereichPage({ params }: PageProps<"/hilfe-finden/[
   return (
     <>
       <JsonLd
-        data={defaultSchema(settings, {
-          name: pageTitle(bereich.metaTitle, settings),
-          path: bereichPath(bereich.slug),
-          type: "CollectionPage",
-        })}
+        data={hilfeUebersichtSchema(
+          defaultSchema(settings, {
+            name: pageTitle(bereich.metaTitle, settings),
+            path: bereichPath(bereich.slug),
+            type: "CollectionPage",
+          }),
+          {
+            path: bereichPath(bereich.slug),
+            siteName: settings.site.name,
+            crumbs: [
+              { path: HILFE_PATH, name: HILFE_TEXTS.title },
+              { path: bereichPath(bereich.slug), name: bereich.label },
+            ],
+            faq: FAQ[bereich.slug] ?? [],
+          },
+        )}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
         {bereich.slug === NOTRUF_BEREICH ? <NotrufHinweis className="mb-8" /> : null}
@@ -90,13 +102,17 @@ export default async function BereichPage({ params }: PageProps<"/hilfe-finden/[
         <h1 className="text-4xl">{bereich.label}</h1>
         <p className="mt-5 max-w-prose text-lg leading-relaxed">{bereich.intro}</p>
         <GutZuWissen eintraege={FAQ[bereich.slug] ?? []} veroeffentlicht={veroeffentlicht} />
-        <div className="mt-10">
+        <section aria-labelledby="einrichtungen" className="mt-10">
+          <h2 id="einrichtungen" className="mb-4 text-2xl">
+            {HILFE_TEXTS.einrichtungenHeading}
+          </h2>
           <EinrichtungFilter
             eintraege={items.map(toListEintrag)}
             bezirke={bezirke}
             kategorien={countBy(items, (item) => item.kategorie)}
+            headingLevel={3}
           />
-        </div>
+        </section>
       </div>
       <HilfeQuelle />
     </>

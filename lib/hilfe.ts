@@ -2,6 +2,8 @@ import "server-only";
 
 import type { ListEintrag } from "@/components/hilfe/einrichtung-liste";
 import { decodeEntities } from "@/lib/entities";
+import { siteUrl } from "@/lib/env";
+import { faqText, type FaqEintrag } from "@/lib/hilfe-faq";
 import { getPosts, type KlsAnbieter, type KlsContent, type KlsPostItem, type KlsTerm } from "@/lib/kls";
 
 /**
@@ -16,10 +18,14 @@ import { getPosts, type KlsAnbieter, type KlsContent, type KlsPostItem, type Kls
 export const HILFE_PATH = "/hilfe-finden/";
 
 export const HILFE_TEXTS = {
+  /** Brotkrumen, Schema, llms.txt. */
   title: "Hilfe finden",
+  /** H1 der Übersicht. */
+  heading: "Hilfe finden in Krefeld",
   metaTitle: "Hilfe finden in Krefeld",
   intro:
     "Hier findet ihr Pflegeheime, Beratungsstellen, Treffpunkte für Kinder und Jugendliche und soziale Dienste in Krefeld – sortiert nach Thema und Stadtbezirk. Die Angaben stammen von der Stadt Krefeld und werden regelmäßig abgeglichen.",
+  einrichtungenHeading: "Einrichtungen",
   bereicheHeading: "Nach Thema",
   bezirkeHeading: "Nach Stadtbezirk",
   quelle: "Quelle: Stadt Krefeld, Open Data (Datenlizenz Deutschland – Zero – 2.0), Stand 27.05.2026",
@@ -260,13 +266,10 @@ export function countBy(items: Einrichtung[], pick: (item: Einrichtung) => Begri
 const list = (entries: { name: string; count: number }[]) =>
   entries.map((entry) => `${entry.name} (${entry.count})`).join(", ");
 
-/** Meta-Beschreibung der Übersicht aus den Daten. */
+/** Meta-Beschreibung der Übersicht (höchstens 155 Zeichen); die Anzahl kommt aus den Daten. */
 export function overviewDescription(items: Einrichtung[]): string {
-  const bereiche = BEREICHE.map((bereich) => ({
-    name: bereich.label,
-    count: items.filter((item) => item.bereich.slug === bereich.slug).length,
-  })).filter((entry) => entry.count > 0);
-  return `${einrichtungenLabel(items.length)} in Krefeld: ${list(bereiche)} – nach Thema und Stadtbezirk.`;
+  const anzahl = items.length === 1 ? "1 soziale Einrichtung" : `${items.length} soziale Einrichtungen`;
+  return `${anzahl} in Krefeld: Pflege, Kinder & Jugend, Beratung und soziale Dienste – sortiert nach Thema und Stadtteil.`;
 }
 
 /**
@@ -349,6 +352,62 @@ export function einrichtungDescription(item: Einrichtung): string {
     `${item.name}: ${was}.`,
   ];
   return kandidaten.find((text) => text.length <= DESCRIPTION_MAX) ?? kandidaten[kandidaten.length - 1];
+}
+
+/* ------------------------------------------------------------------ */
+/* JSON-LD der Übersichten                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ergänzt das Schema einer Übersicht (defaultSchema) um eine BreadcrumbList
+ * passend zur sichtbaren Navigation (Startseite, übergeordnete Seiten, aktuelle
+ * Seite) und/oder eine FAQPage aus „Gut zu wissen“ (Texte unverändert, als
+ * reiner Text). Alles in einem Graph, wie bei den Detailseiten.
+ */
+export function hilfeUebersichtSchema<T extends { "@graph": object[] }>(
+  schema: T,
+  {
+    path,
+    siteName,
+    crumbs = [],
+    faq = [],
+  }: { path: string; siteName: string; crumbs?: { path: string; name: string }[]; faq?: FaqEintrag[] },
+): T {
+  const base = siteUrl();
+  const pageUrl = base + path;
+  const breadcrumb =
+    crumbs.length > 0
+      ? {
+          "@type": "BreadcrumbList",
+          "@id": `${pageUrl}#breadcrumb`,
+          itemListElement: [{ path: "/", name: siteName }, ...crumbs].map((crumb, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: crumb.name,
+            item: base + crumb.path,
+          })),
+        }
+      : null;
+  const faqPage =
+    faq.length > 0
+      ? {
+          "@type": "FAQPage",
+          "@id": `${pageUrl}#faq`,
+          isPartOf: { "@id": `${pageUrl}#webpage` },
+          mainEntity: faq.map((eintrag) => ({
+            "@type": "Question",
+            name: eintrag.frage,
+            acceptedAnswer: { "@type": "Answer", text: faqText(eintrag.antwort) },
+          })),
+        }
+      : null;
+
+  const graph = schema["@graph"].map((node) =>
+    breadcrumb && "@id" in node && node["@id"] === `${pageUrl}#webpage`
+      ? { ...node, breadcrumb: { "@id": breadcrumb["@id"] } }
+      : node,
+  );
+  return { ...schema, "@graph": [...graph, ...(breadcrumb ? [breadcrumb] : []), ...(faqPage ? [faqPage] : [])] };
 }
 
 /* ------------------------------------------------------------------ */

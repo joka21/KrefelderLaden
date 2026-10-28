@@ -15,14 +15,14 @@ export function EinrichtungKacheln({ eintraege }: { eintraege: ListEintrag[] }) 
       {eintraege.map((eintrag) => (
         <li key={eintrag.id}>
           <article className="group relative flex h-full flex-col rounded-lg bg-orange p-5 text-white shadow-md transition-shadow hover:shadow-lg">
-            <h2 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white">
               <Link
                 href={eintrag.path}
                 className="underline-offset-4 after:absolute after:inset-0 after:rounded-lg group-hover:underline"
               >
                 {eintrag.name}
               </Link>
-            </h2>
+            </h3>
             <p className="mt-3 text-[1.1875rem] font-bold">{eintrag.bereich.name}</p>
             <p className="mt-1 text-[1.1875rem] font-bold">Krefeld-{eintrag.bezirk.name}</p>
           </article>

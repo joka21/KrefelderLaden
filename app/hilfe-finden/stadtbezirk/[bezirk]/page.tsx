@@ -19,6 +19,7 @@ import {
   getEinrichtungen,
   HILFE_PATH,
   HILFE_TEXTS,
+  hilfeUebersichtSchema,
   NOTRUF_BEREICH,
   toListEintrag,
   type Bezirk,
@@ -75,11 +76,21 @@ export default async function BezirkPage({ params }: PageProps<"/hilfe-finden/st
   return (
     <>
       <JsonLd
-        data={defaultSchema(settings, {
-          name: pageTitle(metaTitle(bezirk), settings),
-          path: bezirkPath(bezirk.slug),
-          type: "CollectionPage",
-        })}
+        data={hilfeUebersichtSchema(
+          defaultSchema(settings, {
+            name: pageTitle(metaTitle(bezirk), settings),
+            path: bezirkPath(bezirk.slug),
+            type: "CollectionPage",
+          }),
+          {
+            path: bezirkPath(bezirk.slug),
+            siteName: settings.site.name,
+            crumbs: [
+              { path: HILFE_PATH, name: HILFE_TEXTS.title },
+              { path: bezirkPath(bezirk.slug), name: `Stadtbezirk Krefeld-${bezirk.name}` },
+            ],
+          },
+        )}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
         <HilfeBreadcrumb items={[{ path: HILFE_PATH, label: HILFE_TEXTS.title }]} />
