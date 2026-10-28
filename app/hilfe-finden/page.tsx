@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { JsonLd } from "@/components/json-ld";
+import { KategorieBeitraege, loadKategorie } from "@/components/kategorie-seite";
 import {
   BEREICHE,
   BEZIRKE,
@@ -17,6 +18,7 @@ import {
   overviewDescription,
 } from "@/lib/hilfe";
 import { FAQ } from "@/lib/hilfe-faq";
+import { HILFE_KATEGORIE, KATEGORIE_TEXTS } from "@/lib/kategorien";
 import { getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 
@@ -31,9 +33,17 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-/** Übersicht: Einleitung, Bereiche als Kacheln mit Anzahl, Stadtbezirke als Links. */
+/**
+ * Übersicht: Einleitung, Beiträge der Kategorie „Hilfe finden“ (ohne Beiträge
+ * der Hinweissatz), darunter das Verzeichnis: Bereiche als Kacheln mit Anzahl,
+ * Stadtbezirke als Links. Immer indexierbar, auch bei leerer Kategorie.
+ */
 export default async function HilfePage() {
-  const [settings, items] = await Promise.all([getSettings(), getEinrichtungen()]);
+  const [settings, items, beitraege] = await Promise.all([
+    getSettings(),
+    getEinrichtungen(),
+    loadKategorie(HILFE_KATEGORIE, 1),
+  ]);
 
   // Ohne veröffentlichte Einrichtungen gibt es die Seite nicht (auch nicht in der Navigation).
   if (items.length === 0) {
@@ -61,6 +71,13 @@ export default async function HilfePage() {
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
         <h1 className="text-4xl">{HILFE_TEXTS.title}</h1>
         <p className="mt-5 max-w-prose text-lg leading-relaxed">{HILFE_TEXTS.intro}</p>
+
+        <section aria-labelledby="beitraege" className="mt-12">
+          <h2 id="beitraege" className="mb-6 text-2xl">
+            {KATEGORIE_TEXTS.postsHeading}
+          </h2>
+          <KategorieBeitraege daten={beitraege} headingLevel={3} />
+        </section>
 
         <GutZuWissen eintraege={FAQ.uebersicht} veroeffentlicht={new Set(items.map((item) => item.path))} />
 

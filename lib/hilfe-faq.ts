@@ -1,5 +1,5 @@
 /**
- * „Gut zu wissen“ auf /hilfe/ und den Bereichsseiten. Texte unverändert aus
+ * „Gut zu wissen“ auf /hilfe-finden/ und den Bereichsseiten. Texte unverändert aus
  * der redaktionellen Vorlage; Teile mit `slug` werden zum Link auf die
  * Detailseite der Einrichtung (nur, wenn sie veröffentlicht ist).
  */
@@ -13,7 +13,7 @@ export interface FaqEintrag {
 
 const link = (text: string, slug: string): FaqTeil => ({ text, slug });
 
-/** Schlüssel: „uebersicht“ für /hilfe/, sonst der Slug des Bereichs. */
+/** Schlüssel: „uebersicht“ für /hilfe-finden/, sonst der Slug des Bereichs. */
 export const FAQ: Record<string, FaqEintrag[]> = {
   uebersicht: [
     {

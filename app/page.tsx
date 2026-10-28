@@ -7,9 +7,9 @@ import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
 import { SectionTiles } from "@/components/section-tiles";
 import kraehe from "@/public/images/kraehe.jpg";
-import { getContent, getPosts, getSettings, type KlsContent } from "@/lib/kls";
+import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { FEATURE, getPublishedSectionPaths, visibleSections } from "@/lib/sections";
+import { FEATURE, kategorieKacheln } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -35,10 +35,9 @@ export default async function HomePage() {
   const [settings, front, published, latest] = await Promise.all([
     getSettings(),
     frontPage(),
-    getPublishedSectionPaths(),
+    getPublishedPaths(),
     getPosts(6),
   ]);
-  const sections = visibleSections(published);
 
   return (
     <>
@@ -61,7 +60,7 @@ export default async function HomePage() {
 
       {published.has(FEATURE.path) ? <FeatureNotice feature={FEATURE} /> : null}
 
-      <SectionTiles sections={sections} heading={TEXTS.home.sectionsHeading} />
+      <SectionTiles sections={kategorieKacheln()} heading={TEXTS.home.sectionsHeading} />
 
       {latest.items.length > 0 ? (
         <section aria-labelledby="neueste" className="mx-auto max-w-6xl px-5 py-12 sm:px-8">

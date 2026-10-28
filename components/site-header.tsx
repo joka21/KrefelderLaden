@@ -3,31 +3,19 @@ import Link from "next/link";
 
 import { MainNav, type NavItem } from "@/components/main-nav";
 import logo from "@/public/images/logo-krefelder-laden.webp";
-import { getPosts } from "@/lib/kls";
-import { getPublishedSectionPaths, RATGEBER_PATH, visibleSections } from "@/lib/sections";
+import { menueKategorien } from "@/lib/kategorien";
 
 /**
- * Navigationspunkte: ein Bereich erscheint nur, wenn sein Pfad veröffentlicht
- * ist (/paths bzw. „Hilfe finden“ mit mindestens einer Einrichtung); der
- * Ratgeber, sobald es mindestens einen Beitrag gibt. Ist die API nicht
- * erreichbar, bleibt die Navigation leer statt auf 404 zu verlinken.
+ * Navigationspunkte: die Kategorien aus lib/kategorien.ts mit imMenue, in
+ * Listenreihenfolge – immer, auch ohne Beiträge (die Seite zeigt dann einen
+ * Hinweis).
  */
-async function navItems(): Promise<NavItem[]> {
-  try {
-    const [published, posts] = await Promise.all([getPublishedSectionPaths(), getPosts(1)]);
-    const items: NavItem[] = visibleSections(published).map(({ path, label }) => ({ path, label }));
-    if (posts.total > 0) {
-      items.push({ path: RATGEBER_PATH, label: "Ratgeber" });
-    }
-    return items;
-  } catch (error) {
-    console.error("Navigation:", error);
-    return [];
-  }
+function navItems(): NavItem[] {
+  return menueKategorien().map(({ path, label }) => ({ path, label }));
 }
 
-export async function SiteHeader() {
-  const items = await navItems();
+export function SiteHeader() {
+  const items = navItems();
 
   return (
     <header className="border-b border-line bg-white">

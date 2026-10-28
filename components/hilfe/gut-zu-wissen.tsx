@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { einrichtungPath } from "@/lib/hilfe";
 import type { FaqEintrag } from "@/lib/hilfe-faq";
 
 /**
@@ -24,7 +25,7 @@ export function GutZuWissen({ eintraege, veroeffentlicht }: { eintraege: FaqEint
               if (typeof teil === "string") {
                 return teil;
               }
-              const path = `/hilfe/einrichtung/${teil.slug}/`;
+              const path = einrichtungPath(teil.slug);
               return veroeffentlicht.has(path) ? (
                 <Link key={index} href={path} className="text-green underline underline-offset-4 hover:text-green-dark">
                   {teil.text}

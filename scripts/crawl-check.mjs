@@ -2,7 +2,12 @@
 // kein Canonical im <head>, Status ≠ 200, Canonical ≠ eigene URL).
 // Nur lokal ausführen, nicht Teil der Website.
 //
-// Aufruf: node scripts/crawl-check.mjs [browser|semrush|googlebot] [--slash] [--json datei]
+// Aufruf: node scripts/crawl-check.mjs [browser|semrush|googlebot] [--slash] [--json datei] [--origin url]
+//
+// --origin: andere Adresse prüfen, z. B. ein Vercel-Preview. URLs von
+// krefelder-laden.de in Sitemap, Canonical und Links gelten dann als URLs dieser
+// Adresse. Bei geschütztem Preview das Bypass-Secret in
+// VERCEL_AUTOMATION_BYPASS_SECRET setzen.
 //
 // --slash: statt zu crawlen jede Sitemap-URL ohne abschließenden Schrägstrich
 // aufrufen und prüfen, dass genau eine Weiterleitung (301/308) direkt auf die
@@ -11,7 +16,14 @@ import { writeFileSync } from "node:fs";
 
 import * as cheerio from "cheerio";
 
-const ORIGIN = "https://krefelder-laden.de";
+const SITE = "https://krefelder-laden.de";
+const originIndex = process.argv.indexOf("--origin");
+const ORIGIN = originIndex > 0 ? process.argv[originIndex + 1].replace(/\/+$/, "") : SITE;
+const BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
+/** URL von SITE → gleiche URL auf ORIGIN (ohne --origin unverändert). */
+const local = (url) => (url.startsWith(`${SITE}/`) ? ORIGIN + url.slice(SITE.length) : url);
+
 const MAX_URLS = 500;
 const DELAY_MS = 1000;
 
@@ -24,8 +36,7 @@ const USER_AGENTS = {
 
 /** Zusätzlich geprüfte URLs (Varianten, alte WordPress-Pfade, Paginierung). */
 const EXTRA = [
-  "https://www.krefelder-laden.de/",
-  "http://krefelder-laden.de/",
+  ...(ORIGIN === SITE ? ["https://www.krefelder-laden.de/", "http://krefelder-laden.de/"] : []),
   `${ORIGIN}/2026/09/24/krefeld-und-seine-geschichte-von-den-roemern-zur-samt-und-seidenstadt/`,
   `${ORIGIN}/hilfe`,
   `${ORIGIN}/ratgeber`,
@@ -39,6 +50,17 @@ const EXTRA = [
   `${ORIGIN}/page/2/`,
   `${ORIGIN}/hilfe/einrichtung/`,
   `${ORIGIN}/hilfe/stadtbezirk/`,
+  `${ORIGIN}/hilfe-finden`,
+  `${ORIGIN}/hilfe-finden/stadtbezirk/ost`,
+  `${ORIGIN}/hilfe-finden/einrichtung/altenheim-st-josef`,
+  `${ORIGIN}/hilfe-finden/einrichtung/`,
+  `${ORIGIN}/hilfe-finden/stadtbezirk/`,
+  `${ORIGIN}/hilfe-finden/seite/1/`,
+  `${ORIGIN}/weihnachten/`,
+  `${ORIGIN}/second-hand/`,
+  `${ORIGIN}/niederrhein-tapas/`,
+  `${ORIGIN}/mein-krefeld/`,
+  `${ORIGIN}/second-hand/seite/2/`,
   `${ORIGIN}/category/allgemein/`,
   `${ORIGIN}/feed/`,
   `${ORIGIN}/?p=1`,
@@ -59,7 +81,11 @@ async function get(url) {
   const wait = lastRequest + DELAY_MS - Date.now();
   if (wait > 0) await sleep(wait);
   lastRequest = Date.now();
-  return fetch(url, { redirect: "manual", headers: { "user-agent": userAgent } });
+  return fetch(url, { redirect: "manual", headers: headers() });
+}
+
+function headers() {
+  return { "user-agent": userAgent, ...(BYPASS ? { "x-vercel-protection-bypass": BYPASS } : {}) };
 }
 
 /** Interne URL ohne Fragment, sonst null. */
@@ -71,17 +97,18 @@ function normalize(href, base) {
     return null;
   }
   if (!/^https?:$/.test(url.protocol)) return null;
-  if (url.hostname.replace(/^www\./, "") !== "krefelder-laden.de") return null;
+  const host = url.hostname.replace(/^www\./, "");
+  if (host !== "krefelder-laden.de" && host !== new URL(ORIGIN).hostname) return null;
   if (/^\/(_next|wp-content|wp-json|api)\//.test(url.pathname)) return null;
   if (/\.(png|jpe?g|webp|gif|svg|ico|pdf|css|js|woff2?|txt|xml)$/i.test(url.pathname)) return null;
   url.hash = "";
-  return url.toString();
+  return local(url.toString());
 }
 
 async function loadSitemap() {
-  const response = await fetch(`${ORIGIN}/sitemap.xml`, { headers: { "user-agent": userAgent } });
+  const response = await fetch(`${ORIGIN}/sitemap.xml`, { headers: headers() });
   const $ = cheerio.load(await response.text(), { xml: true });
-  return new Set($("loc").map((_, el) => $(el).text().trim()).get());
+  return new Set($("loc").map((_, el) => local($(el).text().trim())).get());
 }
 
 async function crawl() {
@@ -115,7 +142,7 @@ async function crawl() {
       const type = response.headers.get("content-type") ?? "";
       if (type.includes("text/html")) {
         const $ = cheerio.load(await response.text());
-        row.canonical = $("head link[rel='canonical']").attr("href") ?? "";
+        row.canonical = local($("head link[rel='canonical']").attr("href") ?? "");
         row.canonicalInBody = !row.canonical && $("body link[rel='canonical']").length > 0;
         row.robots = $("head meta[name='robots']").attr("content") ?? "";
         if (response.status === 200) {

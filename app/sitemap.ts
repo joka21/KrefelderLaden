@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { siteUrl } from "@/lib/env";
 import { BEREICHE, BEZIRKE, bereichPath, bezirkPath, getEinrichtungen, HILFE_PATH, type Einrichtung } from "@/lib/hilfe";
+import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getPaths, getPosts } from "@/lib/kls";
 
 export const revalidate = 3600;
@@ -12,15 +13,25 @@ function newest(items: Einrichtung[]): string | undefined {
 }
 
 /**
- * Sitemap aus /paths, ergänzt um /, /ratgeber/, die Übersichten und die
- * Detailseiten von „Hilfe finden“ (URLs immer auf SITE_URL).
+ * Sitemap aus /paths, ergänzt um /, /ratgeber/, die Kategorieseiten mit
+ * mindestens einem Beitrag, die Übersichten und die Detailseiten von „Hilfe
+ * finden“ (URLs immer auf SITE_URL). /hilfe-finden/ steht immer darin.
  *
  * Kommen keine Einrichtungen zurück, wirft die Funktion: Ein Build schlägt
  * dann fehl, eine Erneuerung zur Laufzeit behält den letzten guten Stand,
- * statt eine Sitemap ohne /hilfe/ auszuliefern.
+ * statt eine Sitemap ohne /hilfe-finden/ auszuliefern.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [paths, latest, hilfe] = await Promise.all([getPaths(), getPosts(1), getEinrichtungen()]);
+  const [paths, latest, hilfe, kategorien] = await Promise.all([
+    getPaths(),
+    getPosts(1),
+    getEinrichtungen(),
+    Promise.all(
+      KATEGORIEN.filter((kategorie) => kategorie.slug !== HILFE_KATEGORIE).map((kategorie) =>
+        getKategorieSeite(kategorie.slug, 1),
+      ),
+    ),
+  ]);
   if (hilfe.length === 0) {
     throw new Error(`Sitemap: keine Einrichtungen von der API (/paths: ${paths.length} Pfade), letzter Stand bleibt.`);
   }
@@ -32,6 +43,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   entries.set("/", { url: `${base}/` });
   if (latest.total > 0) {
     entries.set("/ratgeber/", { url: `${base}/ratgeber/`, lastModified: newestPost });
+  }
+  for (const daten of kategorien) {
+    if (daten && daten.total > 0) {
+      const path = kategoriePath(daten.kategorie.slug);
+      entries.set(path, { url: base + path, lastModified: daten.posts[0]?.modified ?? undefined });
+    }
   }
   entries.set(HILFE_PATH, { url: base + HILFE_PATH, lastModified: newest(hilfe) });
   for (const bereich of BEREICHE) {

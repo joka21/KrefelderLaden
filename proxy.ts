@@ -6,8 +6,8 @@ import { NextResponse, type NextRequest } from "next/server";
  * 1. Schutz vor Indexierung: Solange SITE_INDEXABLE nicht „true“ ist oder der
  *    Host nicht dem aus SITE_URL entspricht, trägt
  *    jede Antwort den Header „X-Robots-Tag: noindex, nofollow“.
- * 2. Feste Weiterleitungen (FIXED_REDIRECTS) → 308, mit oder ohne Schrägstrich
- *    in einem Schritt.
+ * 2. Feste Weiterleitungen (FIXED_REDIRECTS) und umgezogene Bereiche
+ *    (MOVED_PREFIXES) → 301, mit oder ohne Schrägstrich in einem Schritt.
  * 3. Seiten ohne abschließenden Schrägstrich → 308 auf „/…/“ (API-Routen
  *    ausgenommen, siehe skipTrailingSlashRedirect in next.config.ts).
  * 4. Weiterleitungen aus GET /{site}/redirects mit dem gelieferten Statuscode,
@@ -19,11 +19,16 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const CACHE_MS = 30_000;
 
-/** Pfade ohne eigene Seite (übergeordnete Pfade von „Hilfe finden“) → Ziel. */
+/** Pfade ohne eigene Seite (übergeordnete Pfade von „Hilfe finden“, alt und neu) → Ziel. */
 const FIXED_REDIRECTS: Record<string, string> = {
-  "/hilfe/einrichtung/": "/hilfe/",
-  "/hilfe/stadtbezirk/": "/hilfe/",
+  "/hilfe/einrichtung/": "/hilfe-finden/",
+  "/hilfe/stadtbezirk/": "/hilfe-finden/",
+  "/hilfe-finden/einrichtung/": "/hilfe-finden/",
+  "/hilfe-finden/stadtbezirk/": "/hilfe-finden/",
 };
+
+/** Umgezogene Bereiche: alter Präfix → neuer Präfix, Rest des Pfads bleibt. */
+const MOVED_PREFIXES: [from: string, to: string][] = [["/hilfe/", "/hilfe-finden/"]];
 const STATUS_CODES = new Set([301, 302, 303, 307, 308]);
 
 type RedirectMap = Map<string, { destination: string; status: number }>;
@@ -98,9 +103,18 @@ export async function proxy(request: NextRequest) {
   const isPage = !pathname.startsWith("/api/") && !pathname.startsWith("/wp-content/");
 
   if (isPage && (request.method === "GET" || request.method === "HEAD")) {
-    const fixed = FIXED_REDIRECTS[normalize(pathname)];
+    const path = normalize(pathname);
+    const fixed = FIXED_REDIRECTS[path];
     if (fixed) {
-      return withRobots(request, NextResponse.redirect(new URL(fixed, request.url), 308));
+      return withRobots(request, NextResponse.redirect(new URL(fixed, request.url), 301));
+    }
+
+    // Vor der Schrägstrich-Regel, damit auch „/hilfe/…“ ohne Schrägstrich in einem Schritt ankommt.
+    const moved = MOVED_PREFIXES.find(([from]) => path.startsWith(from));
+    if (moved) {
+      const url = new URL(request.url);
+      url.pathname = moved[1] + path.slice(moved[0].length);
+      return withRobots(request, NextResponse.redirect(url, 301));
     }
 
     // Seiten immer mit abschließendem Schrägstrich (Dateien wie /robots.txt ausgenommen).

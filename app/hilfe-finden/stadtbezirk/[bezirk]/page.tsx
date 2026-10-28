@@ -37,7 +37,7 @@ export function generateStaticParams() {
 
 const metaTitle = (bezirk: Bezirk) => `Soziale Einrichtungen in Krefeld-${bezirk.name}`;
 
-export async function generateMetadata({ params }: PageProps<"/hilfe/stadtbezirk/[bezirk]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/hilfe-finden/stadtbezirk/[bezirk]">): Promise<Metadata> {
   const bezirk = findBezirk((await params).bezirk);
   if (!bezirk) {
     return {};
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/stadtbezirk
 }
 
 /** Einrichtungen eines Stadtbezirks, gruppiert nach Bereich. */
-export default async function BezirkPage({ params }: PageProps<"/hilfe/stadtbezirk/[bezirk]">) {
+export default async function BezirkPage({ params }: PageProps<"/hilfe-finden/stadtbezirk/[bezirk]">) {
   const bezirk = findBezirk((await params).bezirk);
   if (!bezirk) {
     notFound();

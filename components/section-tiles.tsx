@@ -11,7 +11,7 @@ const TILE_CLASSES: Record<SectionColor, string> = {
   berry: "bg-berry text-white",
 };
 
-/** Kacheln der Bereiche; nur veröffentlichte Bereiche werden übergeben. */
+/** Kacheln der Kategorien (Menü-Reihenfolge, siehe kategorieKacheln). */
 export function SectionTiles({ sections, heading }: { sections: Section[]; heading: string }) {
   if (sections.length === 0) {
     return null;

@@ -32,9 +32,12 @@ const DEFAULT_OG_IMAGE = {
   alt: "Logo des Krefelder Ladens und gezeichnete Krähe",
 } as const;
 
-export function robots(api: KlsRobots | null): Metadata["robots"] {
+export function robots(api: KlsRobots | "noindex" | null): Metadata["robots"] {
   if (!isIndexable()) {
     return { index: false, follow: false };
+  }
+  if (api === "noindex") {
+    return { index: false, follow: true };
   }
   return api ? { index: api.index, follow: api.follow } : { index: true, follow: true };
 }
@@ -134,11 +137,12 @@ export function pageTitle(title: string, settings: KlsSettings): string {
 
 /**
  * Metadaten für Frontend-Seiten ohne eigenen Inhalt in WordPress (Startseite
- * ohne front_page, Ratgeber-Übersicht). Werte aus /settings.
+ * ohne front_page, Ratgeber-Übersicht, Kategorieseiten). Werte aus /settings;
+ * noindex z. B. für leere Kategorien.
  */
 export function defaultMetadata(
   settings: KlsSettings,
-  { title, description, path }: { title: string; description: string; path: string },
+  { title, description, path, noindex = false }: { title: string; description: string; path: string; noindex?: boolean },
 ): Metadata {
   const url = siteUrl() + path;
   const images = ogImages(settings.og_fallback_image);
@@ -147,7 +151,7 @@ export function defaultMetadata(
     title: { absolute: title },
     description,
     alternates: { canonical: url },
-    robots: robots(null),
+    robots: robots(noindex ? "noindex" : null),
     openGraph: {
       type: "website",
       title,

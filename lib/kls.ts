@@ -287,8 +287,9 @@ async function request<T>(
   endpoint: string,
   params: Record<string, string | number> = {},
   options: RequestOptions = {},
+  base = `${wpUrl()}/wp-json/kls/v1/${encodeURIComponent(klsSite())}`,
 ): Promise<Result<T>> {
-  const url = new URL(`${wpUrl()}/wp-json/kls/v1/${encodeURIComponent(klsSite())}/${endpoint}`);
+  const url = new URL(`${base}/${endpoint}`);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, String(value));
   }
@@ -365,6 +366,42 @@ export async function getPublishedPaths(): Promise<Set<string>> {
 /** GET /{site}/posts – neueste zuerst; limit 1–100, page ab 1, type Standard „post“. */
 export async function getPosts(limit: number, page = 1, type = "post"): Promise<KlsPostsPage> {
   return unwrap("posts", await request<KlsPostsPage>("posts", { limit, page, type }, { tags: [TAGS.posts] }));
+}
+
+/** Felder einer Kategorie aus GET /wp/v2/categories. */
+export interface WpCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  /** Anzahl veröffentlichter Beiträge. */
+  count: number;
+}
+
+/**
+ * GET /wp/v2/… – WordPress-Standard-API mit demselben API-Key, nur für
+ * Kategorien (die kls-API kennt keine). Cache und Tags wie /posts, damit
+ * /api/revalidate auch diese Abrufe erneuert.
+ */
+async function wp<T>(endpoint: string, params: Record<string, string | number>): Promise<T> {
+  return unwrap(`wp/v2/${endpoint}`, await request<T>(endpoint, params, { tags: [TAGS.posts] }, `${wpUrl()}/wp-json/wp/v2`));
+}
+
+/** Kategorie zum Slug oder null. */
+export async function getCategory(slug: string): Promise<WpCategory | null> {
+  const items = await wp<WpCategory[]>("categories", { slug, _fields: "id,name,slug,description,count" });
+  return items[0] ?? null;
+}
+
+/** IDs aller veröffentlichten Beiträge einer Kategorie, neueste zuerst. */
+export async function getCategoryPostIds(category: WpCategory): Promise<number[]> {
+  const ids: number[] = [];
+  for (let page = 1; ids.length < category.count; page++) {
+    const items = await wp<{ id: number }[]>("posts", { categories: category.id, per_page: 100, page, _fields: "id" });
+    if (items.length === 0) break;
+    ids.push(...items.map((item) => item.id));
+  }
+  return ids;
 }
 
 /** GET /{site}/redirects */

@@ -13,7 +13,7 @@ import { getPosts, type KlsAnbieter, type KlsContent, type KlsPostItem, type Kls
  * fest, weil Pfade und Einleitungstexte daran hängen.
  */
 
-export const HILFE_PATH = "/hilfe/";
+export const HILFE_PATH = "/hilfe-finden/";
 
 export const HILFE_TEXTS = {
   title: "Hilfe finden",

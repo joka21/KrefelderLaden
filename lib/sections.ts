@@ -1,10 +1,9 @@
 /**
- * Die drei Bereiche und die Navigation. Ein Eintrag erscheint nur, wenn sein
- * Zielpfad veröffentlicht ist (Prüfung über /paths, siehe lib/kls.ts).
+ * Kacheln der Startseite, Ratgeber, Pflichtseiten und Schwerpunktthema.
+ * Menü und Reihenfolge der Kategorien stehen in lib/kategorien.ts.
  */
 
-import { HILFE_PATH, hasEinrichtungen } from "@/lib/hilfe";
-import { getPublishedPaths } from "@/lib/kls";
+import { menueKategorien } from "@/lib/kategorien";
 
 export type SectionColor = "green" | "orange" | "berry";
 
@@ -14,11 +13,17 @@ export interface Section {
   color: SectionColor;
 }
 
-export const SECTIONS: readonly Section[] = [
-  { path: "/einkaufen/", label: "Einkaufen", color: "green" },
-  { path: "/hilfe/", label: "Hilfe finden", color: "orange" },
-  { path: "/krefeld-entdecken/", label: "Krefeld entdecken", color: "berry" },
-];
+/** Kachelfarben im Wechsel: #3F8146, #A21A45, #F06C2D. */
+const TILE_COLORS: readonly SectionColor[] = ["green", "berry", "orange"];
+
+/** Kacheln der Startseite: die Kategorien des Menüs in Menü-Reihenfolge. */
+export function kategorieKacheln(): Section[] {
+  return menueKategorien().map(({ path, label }, index) => ({
+    path,
+    label,
+    color: TILE_COLORS[index % TILE_COLORS.length],
+  }));
+}
 
 export const RATGEBER_PATH = "/ratgeber/";
 
@@ -37,21 +42,3 @@ export const FEATURE = {
   heading: "Weihnachtsmärkte in Krefeld",
   text: "Termine, Orte und Öffnungszeiten der Märkte in der Stadt.",
 } as const;
-
-/** Bereiche, deren Zielpfad veröffentlicht ist. */
-export function visibleSections(published: Set<string>): Section[] {
-  return SECTIONS.filter((section) => published.has(section.path));
-}
-
-/**
- * Veröffentlichte Pfade (/paths) plus „Hilfe finden“ (/hilfe/), sobald es
- * mindestens eine veröffentlichte Einrichtung gibt – die Seite kommt aus dem
- * Frontend, nicht aus WordPress.
- */
-export async function getPublishedSectionPaths(): Promise<Set<string>> {
-  const [published, hilfe] = await Promise.all([getPublishedPaths(), hasEinrichtungen()]);
-  if (hilfe) {
-    published.add(HILFE_PATH);
-  }
-  return published;
-}

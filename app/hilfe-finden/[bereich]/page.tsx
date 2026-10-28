@@ -44,7 +44,7 @@ async function load(slug: string): Promise<{ bereich: Bereich; items: Einrichtun
   return { bereich, items };
 }
 
-export async function generateMetadata({ params }: PageProps<"/hilfe/[bereich]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/hilfe-finden/[bereich]">): Promise<Metadata> {
   const { bereich: slug } = await params;
   const bereich = findBereich(slug);
   if (!bereich) {
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/[bereich]">
 }
 
 /** Einrichtungen eines Bereichs, filterbar nach Stadtbezirk und Kategorie. */
-export default async function BereichPage({ params }: PageProps<"/hilfe/[bereich]">) {
+export default async function BereichPage({ params }: PageProps<"/hilfe-finden/[bereich]">) {
   const { bereich: slug } = await params;
   const [settings, { bereich, items }, alle] = await Promise.all([getSettings(), load(slug), getEinrichtungen()]);
 

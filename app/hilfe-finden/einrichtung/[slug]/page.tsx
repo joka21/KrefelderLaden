@@ -66,7 +66,7 @@ async function load(path: string): Promise<KlsContent> {
   notFound();
 }
 
-export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/hilfe-finden/einrichtung/[slug]">): Promise<Metadata> {
   const path = toPath((await params).slug);
   const draft = await getDraftContent(path);
   const result = draft ? { found: true as const, content: draft } : await getContent(path);
@@ -95,7 +95,7 @@ export async function generateMetadata({ params }: PageProps<"/hilfe/einrichtung
  * Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse,
  * Stadtbezirk, Website und die 4 nächstgelegenen Einrichtungen (Luftlinie).
  */
-export default async function EinrichtungPage({ params }: PageProps<"/hilfe/einrichtung/[slug]">) {
+export default async function EinrichtungPage({ params }: PageProps<"/hilfe-finden/einrichtung/[slug]">) {
   const content = await load(toPath((await params).slug));
   const einrichtung = einrichtungFromContent(content);
 

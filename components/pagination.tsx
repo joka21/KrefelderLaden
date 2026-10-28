@@ -1,11 +1,23 @@
 import Link from "next/link";
 
-/** Seiten-Navigation des Ratgebers: Seite 1 = /ratgeber/, ab Seite 2 /ratgeber/seite/{n}/. */
-export function ratgeberPageHref(page: number): string {
-  return page <= 1 ? "/ratgeber/" : `/ratgeber/seite/${page}/`;
+/** Seiten-Navigation einer Übersicht: Seite 1 = {basePath}, ab Seite 2 {basePath}seite/{n}/. */
+export function pageHref(basePath: string, page: number): string {
+  return page <= 1 ? basePath : `${basePath}seite/${page}/`;
 }
 
-export function Pagination({ page, totalPages }: { page: number; totalPages: number }) {
+export function ratgeberPageHref(page: number): string {
+  return pageHref("/ratgeber/", page);
+}
+
+export function Pagination({
+  page,
+  totalPages,
+  basePath = "/ratgeber/",
+}: {
+  page: number;
+  totalPages: number;
+  basePath?: string;
+}) {
   if (totalPages <= 1) {
     return null;
   }
@@ -19,7 +31,7 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
       <ul className="flex flex-wrap items-center gap-2">
         {page > 1 ? (
           <li>
-            <Link href={ratgeberPageHref(page - 1)} rel="prev" className={linkClass}>
+            <Link href={pageHref(basePath, page - 1)} rel="prev" className={linkClass}>
               ← Neuere
             </Link>
           </li>
@@ -35,7 +47,7 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
                 {number}
               </span>
             ) : (
-              <Link href={ratgeberPageHref(number)} className={linkClass}>
+              <Link href={pageHref(basePath, number)} className={linkClass}>
                 <span className="sr-only">Seite </span>
                 {number}
               </Link>
@@ -44,7 +56,7 @@ export function Pagination({ page, totalPages }: { page: number; totalPages: num
         ))}
         {page < totalPages ? (
           <li>
-            <Link href={ratgeberPageHref(page + 1)} rel="next" className={linkClass}>
+            <Link href={pageHref(basePath, page + 1)} rel="next" className={linkClass}>
               Ältere →
             </Link>
           </li>
