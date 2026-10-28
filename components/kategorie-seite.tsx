@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/json-ld";
@@ -77,7 +78,9 @@ export function KategorieBeitraege({
 export async function KategorieSeite({ slug, page }: { slug: string; page: number }) {
   const [settings, daten] = await Promise.all([getSettings(), loadKategorie(slug, page)]);
   const beschreibung = page === 1 ? kategorieBeschreibung(daten.kategorie) : "";
-  const eyebrow = findKategorie(slug)?.eyebrow;
+  const konfig = findKategorie(slug);
+  const intro = page === 1 ? (konfig?.intro ?? []) : [];
+  const image = page === 1 ? konfig?.image : undefined;
 
   return (
     <>
@@ -89,9 +92,32 @@ export async function KategorieSeite({ slug, page }: { slug: string; page: numbe
         })}
       />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
-        {eyebrow ? <p className="mb-2 text-sm font-bold uppercase tracking-wide text-green">{eyebrow}</p> : null}
-        <h1 className="text-4xl">{heading(daten.kategorie, page)}</h1>
-        {beschreibung ? <p className="mt-5 max-w-prose text-lg leading-relaxed">{beschreibung}</p> : null}
+        <div className={image ? "grid items-center gap-8 md:grid-cols-[minmax(0,6fr)_minmax(0,4fr)]" : undefined}>
+          <div>
+            {konfig?.eyebrow ? (
+              <p className="mb-2 text-sm font-bold uppercase tracking-wide text-green">{konfig.eyebrow}</p>
+            ) : null}
+            <h1 className="text-4xl">{heading(daten.kategorie, page)}</h1>
+            {beschreibung ? (
+              <p className={`mt-5 max-w-prose leading-relaxed ${intro.length > 0 ? "text-xl" : "text-lg"}`}>{beschreibung}</p>
+            ) : null}
+            {intro.map((absatz) => (
+              <p key={absatz} className="mt-4 max-w-prose text-lg leading-relaxed">
+                {absatz}
+              </p>
+            ))}
+          </div>
+          {/* Motiv auf weißem Hintergrund wie die Krähe der Startseite; mobil unter dem Text. */}
+          {image ? (
+            <Image
+              src={image.src}
+              alt={image.alt}
+              priority
+              sizes="(min-width: 768px) 22rem, 60vw"
+              className="mx-auto h-auto w-3/5 max-w-sm md:w-full md:max-w-[22rem]"
+            />
+          ) : null}
+        </div>
         <div className="mt-10">
           <KategorieBeitraege daten={daten} headingLevel={2} />
         </div>

@@ -1,5 +1,8 @@
 import "server-only";
 
+import type { StaticImageData } from "next/image";
+
+import krefeldKocht from "@/public/images/krefeld-kocht.png";
 import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCategory } from "@/lib/kls";
 
 /**
@@ -13,7 +16,8 @@ import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCat
  * Optionale Texte der Kategorieseite (ohne Angabe gilt der Kategoriename bzw.
  * die Beschreibung aus WordPress): heading (H1), eyebrow (kleine Zeile über der
  * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an),
- * metaDescription (höchstens 155 Zeichen).
+ * metaDescription (höchstens 155 Zeichen), intro (Absätze unter der
+ * Unterzeile aus WordPress), image (Motiv neben dem Text).
  */
 export interface Kategorie {
   slug: string;
@@ -24,6 +28,8 @@ export interface Kategorie {
   eyebrow?: string;
   metaTitle?: string;
   metaDescription?: string;
+  intro?: readonly string[];
+  image?: { src: StaticImageData; alt: string };
 }
 
 export const KATEGORIEN: readonly Kategorie[] = [
@@ -39,6 +45,14 @@ export const KATEGORIEN: readonly Kategorie[] = [
     metaTitle: "Gut essen in Krefeld: Niederrhein Tapas",
     metaDescription:
       "Gut essen in Krefeld: Wir suchen die besten Adressen und bringen Rezepte mit Zutaten vom Niederrhein auf deinen Tisch.",
+    intro: [
+      "Wie und wo kann man in Krefeld gut essen? Wir zeigen es dir. Wir suchen, und wir werden finden. Dazu stellen wir dir Rezepte mit Zutaten vom Niederrhein vor.",
+      "Ein guter Kaffee ist für uns das Wichtigste. Ein wenig Freundlichkeit und gute Qualität. Ohne erhobenen Zeigefinger, aber mit Anspruch.",
+    ],
+    image: {
+      src: krefeldKocht,
+      alt: "Gezeichnete Krähe mit Kochmütze, Halstuch, Schneebesen und Kochlöffel vor einem ockerfarbenen Farbfleck",
+    },
   },
   { slug: "mein-krefeld", label: "Mein Krefeld", imMenue: true },
   { slug: "hilfe-finden", label: "Hilfe finden", imMenue: true },
