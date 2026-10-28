@@ -263,7 +263,7 @@ async function limited<T>(task: () => Promise<T>): Promise<T> {
 }
 
 /** Wartezeiten vor den erneuten Versuchen (Millisekunden). */
-const RETRY_DELAYS = [500, 1500];
+const RETRY_DELAYS = [500, 1500, 4000, 10000];
 
 /**
  * fetch mit erneutem Versuch bei Netzwerkfehlern (z. B. „other side closed“,
