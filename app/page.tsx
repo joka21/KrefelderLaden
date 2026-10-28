@@ -5,11 +5,10 @@ import Link from "next/link";
 import { FeatureNotice } from "@/components/feature-notice";
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
-import { SectionTiles } from "@/components/section-tiles";
 import kraehe from "@/public/images/kraehe.jpg";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { FEATURE, kategorieKacheln } from "@/lib/sections";
+import { FEATURE } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -59,8 +58,6 @@ export default async function HomePage() {
       </section>
 
       {published.has(FEATURE.path) ? <FeatureNotice feature={FEATURE} /> : null}
-
-      <SectionTiles sections={kategorieKacheln()} heading={TEXTS.home.sectionsHeading} />
 
       {latest.items.length > 0 ? (
         <section aria-labelledby="neueste" className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
