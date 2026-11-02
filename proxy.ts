@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { ALTE_PFADE } from "@/lib/weihnachtsmaerkte";
+
 /**
  * Proxy (früher „Middleware“), läuft vor jeder Anfrage:
  *
@@ -19,8 +21,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const CACHE_MS = 30_000;
 
-/** Pfade ohne eigene Seite (übergeordnete Pfade von „Hilfe finden“, alt und neu) → Ziel. */
+/** Pfade ohne eigene Seite (übergeordnete Pfade von „Hilfe finden“, alt und neu; Weihnachtsmärkte) → Ziel. */
 const FIXED_REDIRECTS: Record<string, string> = {
+  ...Object.fromEntries(ALTE_PFADE.map((path) => [path, "/weihnachten/"])),
   "/hilfe/einrichtung/": "/hilfe-finden/",
   "/hilfe/stadtbezirk/": "/hilfe-finden/",
   "/hilfe-finden/einrichtung/": "/hilfe-finden/",

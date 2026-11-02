@@ -35,10 +35,15 @@ export const LEGAL_LINKS = [
 /**
  * Schwerpunktthema: hervorgehobener Hinweis auf der Startseite zwischen
  * Einleitung und Kacheln. Erscheint nur, wenn der Pfad veröffentlicht ist
- * (/paths). Für ein neues Thema nur diese drei Werte ändern.
+ * (/paths) oder eine Kategorie des Menüs ist. Für ein neues Thema nur diese
+ * drei Werte ändern.
  */
 export const FEATURE = {
-  path: "/weihnachtsmaerkte-in-krefeld/",
+  path: "/weihnachten/",
   heading: "Weihnachtsmärkte in Krefeld",
   text: "Termine, Orte und Öffnungszeiten der Märkte in der Stadt.",
 } as const;
+
+export function featureSichtbar(published: Set<string>): boolean {
+  return published.has(FEATURE.path) || menueKategorien().some(({ path }) => path === FEATURE.path);
+}

@@ -8,7 +8,7 @@ import { PostList } from "@/components/post-list";
 import kraehe from "@/public/images/kraehe.jpg";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { FEATURE } from "@/lib/sections";
+import { FEATURE, featureSichtbar } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {published.has(FEATURE.path) ? <FeatureNotice feature={FEATURE} /> : null}
+      {featureSichtbar(published) ? <FeatureNotice feature={FEATURE} /> : null}
 
       {latest.items.length > 0 ? (
         <section aria-labelledby="neueste" className="mx-auto max-w-6xl px-5 py-12 sm:px-8">

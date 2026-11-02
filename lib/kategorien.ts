@@ -17,7 +17,8 @@ import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCat
  * die Beschreibung aus WordPress): heading (H1), eyebrow (kleine Zeile über der
  * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an),
  * metaDescription (höchstens 155 Zeichen), intro (Absätze unter der
- * Unterzeile aus WordPress), image (Motiv neben dem Text).
+ * Unterzeile aus WordPress), image (Motiv neben dem Text), inhalt (fester
+ * Beitrag über der Beitragsliste; die Seite ist dann auch ohne Beiträge indexierbar).
  */
 export interface Kategorie {
   slug: string;
@@ -30,11 +31,21 @@ export interface Kategorie {
   metaDescription?: string;
   intro?: readonly string[];
   image?: { src: StaticImageData; alt: string };
+  inhalt?: "weihnachtsmaerkte";
 }
 
 export const KATEGORIEN: readonly Kategorie[] = [
   // Nach dem 31.12. auf imMenue: false setzen.
-  { slug: "weihnachten", label: "Weihnachten", imMenue: true },
+  {
+    slug: "weihnachten",
+    label: "Weihnachten",
+    imMenue: true,
+    heading: "Weihnachtsmärkte in Krefeld 2026: alle Termine von Bruckhausen bis Fischeln",
+    metaTitle: "Weihnachtsmärkte in Krefeld 2026: Termine",
+    metaDescription:
+      "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Uhrzeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.",
+    inhalt: "weihnachtsmaerkte",
+  },
   { slug: "second-hand", label: "Second Hand", imMenue: true },
   {
     slug: "niederrhein-tapas",

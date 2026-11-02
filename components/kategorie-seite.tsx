@@ -5,10 +5,13 @@ import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { pageHref, Pagination } from "@/components/pagination";
 import { PostList } from "@/components/post-list";
+import { GRUEN_H1, GRUEN_H2, WeihnachtsmaerkteInhalt } from "@/components/weihnachtsmaerkte";
 import { decodeEntities } from "@/lib/entities";
+import { siteUrl } from "@/lib/env";
 import { findKategorie, getKategorieSeite, KATEGORIE_TEXTS, kategoriePath, type KategorieDaten } from "@/lib/kategorien";
 import { getSettings, type WpCategory } from "@/lib/kls";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
+import { weihnachtsmaerkteSchema } from "@/lib/weihnachtsmaerkte";
 
 const seite = (text: string, page: number) => (page > 1 ? `${text} – Seite ${page}` : text);
 
@@ -51,7 +54,7 @@ export async function kategorieMetadata(slug: string, page: number): Promise<Met
       kategorieBeschreibung(daten.kategorie) ||
       `${name}: Beiträge aus Krefeld von Krefelder Laden.`,
     path: pageHref(kategoriePath(slug), page),
-    noindex: daten.total === 0,
+    noindex: daten.total === 0 && !findKategorie(slug)?.inhalt,
   });
 }
 
@@ -81,23 +84,25 @@ export async function KategorieSeite({ slug, page }: { slug: string; page: numbe
   const konfig = findKategorie(slug);
   const intro = page === 1 ? (konfig?.intro ?? []) : [];
   const image = page === 1 ? konfig?.image : undefined;
+  const hatInhalt = konfig?.inhalt === "weihnachtsmaerkte";
+  const zeigeInhalt = hatInhalt && page === 1;
+  const path = pageHref(kategoriePath(slug), page);
+  const schema = defaultSchema(settings, {
+    name: pageTitle(metaTitle(daten.kategorie, page), settings),
+    path,
+    type: "CollectionPage",
+  });
 
   return (
     <>
-      <JsonLd
-        data={defaultSchema(settings, {
-          name: pageTitle(metaTitle(daten.kategorie, page), settings),
-          path: pageHref(kategoriePath(slug), page),
-          type: "CollectionPage",
-        })}
-      />
+      <JsonLd data={zeigeInhalt ? weihnachtsmaerkteSchema(schema, siteUrl() + path) : schema} />
       <div className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-14">
         <div className={image ? "grid items-center gap-8 md:grid-cols-[minmax(0,6fr)_minmax(0,4fr)]" : undefined}>
           <div>
             {konfig?.eyebrow ? (
               <p className="mb-2 text-sm font-bold uppercase tracking-wide text-green">{konfig.eyebrow}</p>
             ) : null}
-            <h1 className="text-4xl">{heading(daten.kategorie, page)}</h1>
+            <h1 className={hatInhalt ? GRUEN_H1 : "text-4xl"}>{heading(daten.kategorie, page)}</h1>
             {beschreibung ? (
               <p className={`mt-5 max-w-prose leading-relaxed ${intro.length > 0 ? "text-xl" : "text-lg"}`}>{beschreibung}</p>
             ) : null}
@@ -118,8 +123,10 @@ export async function KategorieSeite({ slug, page }: { slug: string; page: numbe
             />
           ) : null}
         </div>
+        {zeigeInhalt ? <WeihnachtsmaerkteInhalt /> : null}
         <div className="mt-10">
-          <KategorieBeitraege daten={daten} headingLevel={2} />
+          {zeigeInhalt ? <h2 className={`mb-6 ${GRUEN_H2}`}>{KATEGORIE_TEXTS.postsHeading}</h2> : null}
+          <KategorieBeitraege daten={daten} headingLevel={zeigeInhalt ? 3 : 2} />
         </div>
       </div>
     </>

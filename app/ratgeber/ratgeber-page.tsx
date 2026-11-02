@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Pagination, ratgeberPageHref } from "@/components/pagination";
 import { PostList } from "@/components/post-list";
 import { getPosts, getPublishedPaths, getSettings } from "@/lib/kls";
-import { FEATURE } from "@/lib/sections";
+import { FEATURE, featureSichtbar } from "@/lib/sections";
 import { defaultMetadata, defaultSchema, pageTitle } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
 
@@ -57,7 +57,7 @@ export async function RatgeberPage({ page }: { page: number }) {
         {posts.items.length > 0 ? <PostList posts={posts.items} headingLevel={2} /> : <p>{TEXTS.ratgeber.empty}</p>}
         <Pagination page={page} totalPages={posts.total_pages} />
       </div>
-      {page === 1 && published.has(FEATURE.path) ? <FeatureNotice feature={FEATURE} /> : null}
+      {page === 1 && featureSichtbar(published) ? <FeatureNotice feature={FEATURE} /> : null}
     </>
   );
 }
