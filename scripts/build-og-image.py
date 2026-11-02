@@ -14,7 +14,7 @@ MARGIN = 60
 GAP = 60
 
 logo = Image.open("public/images/logo-krefelder-laden.webp").convert("RGBA")
-crow = Image.open("public/images/kraehe.jpg").convert("RGBA")
+crow = Image.open("public/images/kraehe.webp").convert("RGBA")
 
 # Krähe: volle Innenhöhe; Logo: restliche Breite, ebenfalls höchstens Innenhöhe.
 inner_height = HEIGHT - 2 * MARGIN

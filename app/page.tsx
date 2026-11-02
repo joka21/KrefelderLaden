@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FeatureNotice } from "@/components/feature-notice";
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
-import kraehe from "@/public/images/kraehe.jpg";
+import kraehe from "@/public/images/kraehe.webp";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
 import { FEATURE, featureSichtbar } from "@/lib/sections";

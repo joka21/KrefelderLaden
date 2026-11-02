@@ -7,7 +7,7 @@ import { EinrichtungFilter } from "@/components/hilfe/einrichtung-filter";
 import { GutZuWissen } from "@/components/hilfe/gut-zu-wissen";
 import { HilfeQuelle } from "@/components/hilfe/hilfe-quelle";
 import { JsonLd } from "@/components/json-ld";
-import kraehe from "@/public/images/hilfe-finden.png";
+import kraehe from "@/public/images/hilfe-finden.webp";
 import {
   BEREICHE,
   BEZIRKE,

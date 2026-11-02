@@ -2,7 +2,7 @@ import "server-only";
 
 import type { StaticImageData } from "next/image";
 
-import krefeldKocht from "@/public/images/krefeld-kocht.png";
+import krefeldKocht from "@/public/images/krefeld-kocht.webp";
 import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCategory } from "@/lib/kls";
 import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
