@@ -28,7 +28,7 @@ export function GET() {
     "## Ratgeber",
     "",
     link("Ratgeber", "/ratgeber/", "Artikel über Krefeld"),
-    link("Weihnachtsmärkte in Krefeld", "/weihnachten/", "Termine und Orte"),
+    link("Weihnachtsmärkte in Krefeld", "/weihnachtsmaerkte-in-krefeld/", "Termine und Orte"),
     "",
   ].join("\n");
 

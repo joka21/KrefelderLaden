@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 import { siteUrl } from "@/lib/env";
 import { BEREICHE, BEZIRKE, bereichPath, bezirkPath, getEinrichtungen, HILFE_PATH, type Einrichtung } from "@/lib/hilfe";
-import { findKategorie, getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
+import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getPaths, getPosts } from "@/lib/kls";
-import { ALTE_PFADE, STAND } from "@/lib/weihnachtsmaerkte";
+import { MAERKTE_PATH, STAND } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
 
@@ -46,14 +46,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.set("/ratgeber/", { url: `${base}/ratgeber/`, lastModified: newestPost });
   }
   for (const daten of kategorien) {
-    const inhalt = daten && findKategorie(daten.kategorie.slug)?.inhalt;
-    if (daten && (daten.total > 0 || inhalt)) {
+    if (daten && daten.total > 0) {
       const path = kategoriePath(daten.kategorie.slug);
-      const beitrag = daten.posts[0]?.modified ?? undefined;
-      entries.set(path, {
-        url: base + path,
-        lastModified: inhalt && (!beitrag || STAND.iso > beitrag) ? STAND.iso : beitrag,
-      });
+      entries.set(path, { url: base + path, lastModified: daten.posts[0]?.modified ?? undefined });
     }
   }
   entries.set(HILFE_PATH, { url: base + HILFE_PATH, lastModified: newest(hilfe) });
@@ -74,10 +69,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.modified ?? undefined });
   }
   for (const item of paths) {
-    if (!ALTE_PFADE.includes(item.path)) {
-      entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.lastmod });
-    }
+    entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.lastmod });
   }
+  // Inhalt kommt aus dem Frontend, daher unabhängig von /paths und mit eigenem Stand.
+  entries.set(MAERKTE_PATH, { url: base + MAERKTE_PATH, lastModified: STAND.iso });
 
   return [...entries.values()];
 }

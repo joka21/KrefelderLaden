@@ -4,6 +4,7 @@ import type { StaticImageData } from "next/image";
 
 import krefeldKocht from "@/public/images/krefeld-kocht.png";
 import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCategory } from "@/lib/kls";
+import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 /**
  * Blog-Kategorien: Hauptmenü und Kategorieseiten unter /{slug}/.
@@ -17,8 +18,8 @@ import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCat
  * die Beschreibung aus WordPress): heading (H1), eyebrow (kleine Zeile über der
  * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an),
  * metaDescription (höchstens 155 Zeichen), intro (Absätze unter der
- * Unterzeile aus WordPress), image (Motiv neben dem Text), inhalt (fester
- * Beitrag über der Beitragsliste; die Seite ist dann auch ohne Beiträge indexierbar).
+ * Unterzeile aus WordPress), image (Motiv neben dem Text), link (deutlicher
+ * Link unter dem Text).
  */
 export interface Kategorie {
   slug: string;
@@ -31,7 +32,7 @@ export interface Kategorie {
   metaDescription?: string;
   intro?: readonly string[];
   image?: { src: StaticImageData; alt: string };
-  inhalt?: "weihnachtsmaerkte";
+  link?: { text: string; path: string };
 }
 
 export const KATEGORIEN: readonly Kategorie[] = [
@@ -40,11 +41,10 @@ export const KATEGORIEN: readonly Kategorie[] = [
     slug: "weihnachten",
     label: "Weihnachten",
     imMenue: true,
-    heading: "Weihnachtsmärkte in Krefeld 2026: alle Termine von Bruckhausen bis Fischeln",
-    metaTitle: "Weihnachtsmärkte in Krefeld 2026: Termine",
-    metaDescription:
-      "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Uhrzeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.",
-    inhalt: "weihnachtsmaerkte",
+    intro: [
+      "Wann und wo ist in Krefeld Weihnachtsmarkt? Otto hat alle Märkte 2026 für dich zusammengetragen, mit Terminen und Orten von Bruckhausen bis Fischeln.",
+    ],
+    link: { text: "Alle Weihnachtsmärkte in Krefeld 2026", path: MAERKTE_PATH },
   },
   { slug: "second-hand", label: "Second Hand", imMenue: true },
   {

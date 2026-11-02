@@ -4,10 +4,12 @@ import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { ContentView } from "@/components/content-view";
 import { JsonLd } from "@/components/json-ld";
 import { KategorieSeite, kategorieMetadata } from "@/components/kategorie-seite";
+import { WeihnachtsmaerkteSeite, weihnachtsmaerkteMetadata } from "@/components/weihnachtsmaerkte";
 import { HILFE_KATEGORIE, isKategorie, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getContent, getPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
 import { contentMetadata, contentSchema } from "@/lib/seo";
+import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -96,6 +98,9 @@ export async function generateMetadata({ params }: PageProps<"/[...slug]">): Pro
     return kategorieMetadata(kategorie.kategorie, kategorie.page);
   }
   const path = toPath(slug);
+  if (path === MAERKTE_PATH) {
+    return weihnachtsmaerkteMetadata();
+  }
   // Nicht gefunden bzw. Weiterleitung entscheidet die Seite; hier nicht werfen,
   // damit die 404-Seite vollständig als HTML ausgeliefert wird.
   const draft = await getDraftContent(path);
@@ -111,6 +116,9 @@ export default async function ContentPage({ params }: PageProps<"/[...slug]">) {
   const kategorie = kategorieSeite(slug);
   if (kategorie) {
     return <KategorieSeite slug={kategorie.kategorie} page={kategorie.page} />;
+  }
+  if (toPath(slug) === MAERKTE_PATH) {
+    return <WeihnachtsmaerkteSeite />;
   }
   const [content, settings] = await Promise.all([load(toPath(slug)), getSettings()]);
 

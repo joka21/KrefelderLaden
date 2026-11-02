@@ -1,5 +1,5 @@
 /**
- * Weihnachtsmärkte 2026 auf /weihnachten/: Texte der Redaktion unverändert.
+ * Weihnachtsmärkte 2026 auf /weihnachtsmaerkte-in-krefeld/: Texte der Redaktion unverändert.
  *
  * Pflege: Fehlende Uhrzeiten in `wann` ergänzen und, wenn bestätigt, in `start`
  * bzw. `ende` als Datum mit Uhrzeit eintragen (`…T15:00:00+01:00`). Bei jeder
@@ -8,8 +8,15 @@
 
 export const STAND = { iso: "2026-11-02", text: "2. November 2026" } as const;
 
-/** Frühere bzw. geplante Adressen des Themas: Weiterleitung auf /weihnachten/ (proxy.ts), nicht in der Sitemap. */
-export const ALTE_PFADE: readonly string[] = ["/ratgeber/weihnachtsmaerkte-krefeld-2026/", "/weihnachtsmaerkte-in-krefeld/"];
+/** Hauptseite der Märkte; ihr Inhalt kommt von hier, nicht aus WordPress. */
+export const MAERKTE_PATH = "/weihnachtsmaerkte-in-krefeld/";
+export const MAERKTE_H1 = "Weihnachtsmärkte in Krefeld 2026: alle Termine von Bruckhausen bis Fischeln";
+export const MAERKTE_TITEL = "Weihnachtsmärkte Krefeld 2026: alle Termine & Orte";
+export const MAERKTE_BESCHREIBUNG =
+  "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Uhrzeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.";
+
+/** Geplante Adressen des Themas: 301 auf MAERKTE_PATH (proxy.ts). */
+export const ALTE_PFADE: readonly string[] = ["/ratgeber/weihnachtsmaerkte-krefeld-2026/"];
 
 export interface Markt {
   /** Überschrift und Name im Schema. */

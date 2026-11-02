@@ -4,6 +4,7 @@
  */
 
 import { menueKategorien } from "@/lib/kategorien";
+import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 export type SectionColor = "green" | "orange" | "berry";
 
@@ -35,15 +36,15 @@ export const LEGAL_LINKS = [
 /**
  * Schwerpunktthema: hervorgehobener Hinweis auf der Startseite zwischen
  * Einleitung und Kacheln. Erscheint nur, wenn der Pfad veröffentlicht ist
- * (/paths) oder eine Kategorie des Menüs ist. Für ein neues Thema nur diese
- * drei Werte ändern.
+ * (/paths) oder die Seite aus dem Frontend kommt (Weihnachtsmärkte). Für ein
+ * neues Thema nur diese drei Werte ändern.
  */
-export const FEATURE = {
-  path: "/weihnachten/",
+export const FEATURE: { path: string; heading: string; text: string } = {
+  path: MAERKTE_PATH,
   heading: "Weihnachtsmärkte in Krefeld",
   text: "Termine, Orte und Öffnungszeiten der Märkte in der Stadt.",
-} as const;
+};
 
 export function featureSichtbar(published: Set<string>): boolean {
-  return published.has(FEATURE.path) || menueKategorien().some(({ path }) => path === FEATURE.path);
+  return published.has(FEATURE.path) || FEATURE.path === MAERKTE_PATH;
 }

@@ -2,9 +2,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { FRAGEN, MAERKTE, STAND, weihnachtsmaerkteSchema } from "../lib/weihnachtsmaerkte.ts";
+import { ALTE_PFADE, FRAGEN, MAERKTE, MAERKTE_PATH, STAND, weihnachtsmaerkteSchema } from "../lib/weihnachtsmaerkte.ts";
 
-const URL_SEITE = "https://example.org/weihnachten/";
+test("keine Weiterleitungskette: Hauptseite ist keine alte Adresse", () => {
+  assert.ok(!ALTE_PFADE.includes(MAERKTE_PATH));
+});
+
+const URL_SEITE = "https://example.org/weihnachtsmaerkte-in-krefeld/";
 const { "@graph": graph } = weihnachtsmaerkteSchema({ "@graph": [{ "@id": `${URL_SEITE}#webpage` }] }, URL_SEITE);
 const events = graph.filter((node) => node["@type"] === "Event");
 

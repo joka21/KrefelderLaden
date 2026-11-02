@@ -1,11 +1,25 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { getPosts } from "@/lib/kls";
-import { FRAGEN, MAERKTE, STAND, type Markt } from "@/lib/weihnachtsmaerkte";
+import { JsonLd } from "@/components/json-ld";
+import { siteUrl } from "@/lib/env";
+import { getPosts, getSettings } from "@/lib/kls";
+import { defaultMetadata, defaultSchema } from "@/lib/seo";
+import {
+  FRAGEN,
+  MAERKTE,
+  MAERKTE_BESCHREIBUNG,
+  MAERKTE_H1,
+  MAERKTE_PATH,
+  MAERKTE_TITEL,
+  STAND,
+  weihnachtsmaerkteSchema,
+  type Markt,
+} from "@/lib/weihnachtsmaerkte";
 
 /** Überschriften dieser Seite: grüner Hintergrund, weiße Schrift (Kontrast 4,73:1). */
-export const GRUEN_H1 = "rounded-md bg-green px-4 py-3 text-3xl text-white sm:text-4xl";
-export const GRUEN_H2 = "rounded-md bg-green px-4 py-2.5 text-2xl text-white";
+const GRUEN_H1 = "rounded-md bg-green px-4 py-3 text-3xl text-white sm:text-4xl";
+const GRUEN_H2 = "rounded-md bg-green px-4 py-2.5 text-2xl text-white";
 const GRUEN_H3 = "rounded-md bg-green px-4 py-2 text-lg text-white";
 
 const TEXT_LINK = "text-green underline underline-offset-4 hover:text-green-dark";
@@ -62,14 +76,25 @@ function MarktBlock({ markt, passend }: { markt: Markt; passend?: { title: strin
   );
 }
 
-/** Beitrag „Weihnachtsmärkte in Krefeld 2026“ über der Beitragsliste von /weihnachten/. */
-export async function WeihnachtsmaerkteInhalt() {
+export async function weihnachtsmaerkteMetadata(): Promise<Metadata> {
+  return defaultMetadata(await getSettings(), {
+    title: MAERKTE_TITEL,
+    description: MAERKTE_BESCHREIBUNG,
+    path: MAERKTE_PATH,
+  });
+}
+
+/** Hauptseite der Märkte unter /weihnachtsmaerkte-in-krefeld/. */
+export async function WeihnachtsmaerkteSeite() {
+  const [settings, { items }] = await Promise.all([getSettings(), getPosts(100)]);
   // Der Beitrag zu Linn erscheint am 3.11.; der Link kommt von selbst, sobald er veröffentlicht ist.
-  const { items } = await getPosts(100);
   const kaffeeInLinn = items.find((post) => /kaffee in linn/i.test(post.title));
+  const schema = defaultSchema(settings, { name: MAERKTE_TITEL, path: MAERKTE_PATH });
 
   return (
-    <>
+    <div className="mx-auto max-w-6xl px-5 pb-4 pt-10 sm:px-8 sm:pt-14">
+      <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH)} />
+      <h1 className={GRUEN_H1}>{MAERKTE_H1}</h1>
       <div className="mt-6 max-w-prose space-y-4 text-lg leading-relaxed">
         <p>
           Der Unterschied zwischen Otto und mir: Otto liebt Weihnachtsmärkte, ich nicht so sehr. Dass es überall{" "}
@@ -156,6 +181,6 @@ export async function WeihnachtsmaerkteInhalt() {
           Veranstalter sie veröffentlichen.
         </p>
       </section>
-    </>
+    </div>
   );
 }
