@@ -116,21 +116,28 @@ export async function WeihnachtsmaerkteSeite() {
           Die ersten Märkte starten am 20. November in den Stadtteilen, die Innenstadt folgt am 26. November und bleibt
           bis 23. Dezember.
         </p>
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead>
+        {/* Mobil je Markt ein Block statt drei Spalten: Die Tabelle passt dort nicht ohne seitliches Scrollen. */}
+        <div className="mt-5">
+          <table className="block w-full border-collapse text-left sm:table">
+            <thead className="sr-only sm:not-sr-only sm:table-header-group">
               <tr className="bg-wash">
                 <th scope="col" className="border border-line px-3 py-2">Markt</th>
                 <th scope="col" className="border border-line px-3 py-2">Datum</th>
                 <th scope="col" className="border border-line px-3 py-2">Stadtteil</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block border-t border-line sm:table-row-group sm:border-t-0">
               {MAERKTE.map((markt) => (
-                <tr key={markt.name}>
-                  <td className="border border-line px-3 py-2">{markt.kurzname ?? markt.name}</td>
-                  <td className="border border-line px-3 py-2 sm:whitespace-nowrap">{markt.datum}</td>
-                  <td className="border border-line px-3 py-2">{markt.stadtteil}</td>
+                <tr key={markt.name} className="block border-b border-line py-2.5 sm:table-row sm:border-b-0 sm:py-0">
+                  <td className="block font-bold sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2 sm:font-normal">
+                    {markt.kurzname ?? markt.name}
+                  </td>
+                  <td className="mr-3 inline-block sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2 sm:whitespace-nowrap">
+                    {markt.datum}
+                  </td>
+                  <td className="inline-block text-muted sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2 sm:text-ink">
+                    {markt.stadtteil}
+                  </td>
                 </tr>
               ))}
             </tbody>
