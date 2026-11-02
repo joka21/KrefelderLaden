@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
+import ottoWeihnachten from "@/public/images/otto-weihnachten.png";
 import { JsonLd } from "@/components/json-ld";
 import { siteUrl } from "@/lib/env";
 import { getPosts, getSettings } from "@/lib/kls";
@@ -95,19 +97,29 @@ export async function WeihnachtsmaerkteSeite() {
     <div className="mx-auto max-w-6xl px-5 pb-4 pt-10 sm:px-8 sm:pt-14">
       <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH)} />
       <h1 className={GRUEN_H1}>{MAERKTE_H1}</h1>
-      <div className="mt-6 max-w-prose space-y-4 text-lg leading-relaxed">
-        <p>
-          Der Unterschied zwischen Otto und mir: Otto liebt Weihnachtsmärkte, ich nicht so sehr. Dass es überall{" "}
-          <Link href="/niederrhein-tapas/" className={TEXT_LINK}>
-            so leckere Sachen
-          </Link>{" "}
-          gibt, ist Ottos Freud und mein Leid. Ich esse dann einfach zu viel und bin abends noch runder als sonst. Otto
-          passiert das nicht: uralt, topfit und kein Gramm zu viel.
-        </p>
-        <p>
-          Damit du weißt, wo es sich lohnt, hat Otto alle Weihnachtsmärkte in Krefeld 2026 für dich zusammengetragen, von
-          Bruckhausen bis Fischeln.
-        </p>
+      <div className="mt-6 grid items-center gap-8 md:grid-cols-[minmax(0,6fr)_minmax(0,4fr)]">
+        <div className="max-w-prose space-y-4 text-lg leading-relaxed">
+          <p>
+            Der Unterschied zwischen Otto und mir: Otto liebt Weihnachtsmärkte, ich nicht so sehr. Dass es überall{" "}
+            <Link href="/niederrhein-tapas/" className={TEXT_LINK}>
+              so leckere Sachen
+            </Link>{" "}
+            gibt, ist Ottos Freud und mein Leid. Ich esse dann einfach zu viel und bin abends noch runder als sonst. Otto
+            passiert das nicht: uralt, topfit und kein Gramm zu viel.
+          </p>
+          <p>
+            Damit du weißt, wo es sich lohnt, hat Otto alle Weihnachtsmärkte in Krefeld 2026 für dich zusammengetragen, von
+            Bruckhausen bis Fischeln.
+          </p>
+        </div>
+        {/* Motiv auf weißem Hintergrund wie auf den Kategorieseiten; mobil unter dem Text. */}
+        <Image
+          src={ottoWeihnachten}
+          alt="Gezeichnete Krähe Otto mit Weihnachtsmütze und Lebkuchenstern im Schnabel, sie steht auf einer Schale mit Nüssen vor einem ockerfarbenen Farbfleck"
+          priority
+          sizes="(min-width: 768px) 22rem, 60vw"
+          className="mx-auto h-auto w-3/5 max-w-sm md:w-full md:max-w-[22rem]"
+        />
       </div>
 
       <section className="mt-10">
