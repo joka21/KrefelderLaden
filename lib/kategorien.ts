@@ -108,7 +108,7 @@ export interface KategorieDaten {
 }
 
 /** Alle Beiträge aus /posts (für die Zuordnung der Kategorie-IDs). */
-async function allPosts(): Promise<KlsPostItem[]> {
+export async function allPosts(): Promise<KlsPostItem[]> {
   const first = await getPosts(100);
   const rest = await Promise.all(
     Array.from({ length: Math.max(0, first.total_pages - 1) }, (_, index) => getPosts(100, index + 2)),

@@ -393,16 +393,35 @@ export async function getCategory(slug: string): Promise<WpCategory | null> {
   return items[0] ?? null;
 }
 
-/** IDs aller veröffentlichten Beiträge einer Kategorie, neueste zuerst. */
-export async function getCategoryPostIds(category: WpCategory): Promise<number[]> {
+/** Felder eines Schlagworts aus GET /wp/v2/tags. */
+export interface WpTag {
+  id: number;
+  /** Anzahl veröffentlichter Beiträge. */
+  count: number;
+}
+
+/** Schlagwort zum Slug oder null. */
+export async function getTag(slug: string): Promise<WpTag | null> {
+  const items = await wp<WpTag[]>("tags", { slug, _fields: "id,count" });
+  return items[0] ?? null;
+}
+
+/** IDs aller veröffentlichten Beiträge zu einem Begriff, neueste zuerst. */
+async function getTermPostIds(param: "categories" | "tags", term: { id: number; count: number }): Promise<number[]> {
   const ids: number[] = [];
-  for (let page = 1; ids.length < category.count; page++) {
-    const items = await wp<{ id: number }[]>("posts", { categories: category.id, per_page: 100, page, _fields: "id" });
+  for (let page = 1; ids.length < term.count; page++) {
+    const items = await wp<{ id: number }[]>("posts", { [param]: term.id, per_page: 100, page, _fields: "id" });
     if (items.length === 0) break;
     ids.push(...items.map((item) => item.id));
   }
   return ids;
 }
+
+/** IDs aller veröffentlichten Beiträge einer Kategorie, neueste zuerst. */
+export const getCategoryPostIds = (category: WpCategory) => getTermPostIds("categories", category);
+
+/** IDs aller veröffentlichten Beiträge eines Schlagworts, neueste zuerst. */
+export const getTagPostIds = (tag: WpTag) => getTermPostIds("tags", tag);
 
 /** GET /{site}/redirects */
 export async function getRedirects(): Promise<KlsRedirect[]> {

@@ -5,12 +5,14 @@ import Link from "next/link";
 import { FeatureNotice } from "@/components/feature-notice";
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
+import { WeihnachtsStartseite, weihnachtsStartseiteMetadata } from "@/components/weihnachts-startseite";
 import kraehe from "@/public/images/kraehe.webp";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
 import { FEATURE, featureSichtbar } from "@/lib/sections";
 import { contentMetadata, defaultMetadata, defaultSchema } from "@/lib/seo";
 import { TEXTS } from "@/lib/texts";
+import { istWeihnachtszeit } from "@/lib/weihnachten";
 
 export const revalidate = 3600;
 
@@ -23,6 +25,10 @@ async function frontPage(): Promise<KlsContent | null> {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  if (istWeihnachtszeit()) {
+    return weihnachtsStartseiteMetadata();
+  }
+
   const [settings, front] = await Promise.all([getSettings(), frontPage()]);
 
   return front
@@ -31,6 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
+  // Bis 31.12.2026 die Weihnachts-Startseite, danach wieder die bisherige.
+  if (istWeihnachtszeit()) {
+    return <WeihnachtsStartseite />;
+  }
+
   const [settings, front, published, latest] = await Promise.all([
     getSettings(),
     frontPage(),

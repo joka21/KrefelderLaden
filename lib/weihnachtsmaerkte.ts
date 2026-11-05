@@ -259,6 +259,13 @@ export function wannText(markt: Markt): string {
   return `${wochentag(von)}, ${von.getUTCDate()}. ${zweiTage(von, bis) ? "und" : "bis"} ${tagLang(bis)}${offen}`;
 }
 
+/** Märkte, die noch laufen oder kommen, nach Beginn sortiert (für die Startseite). */
+export function naechsteMaerkte(heute: string, anzahl = 4): Markt[] {
+  return MAERKTE.filter(({ start, ende }) => (ende ?? start) >= heute)
+    .toSorted((a, b) => a.start.localeCompare(b.start))
+    .slice(0, anzahl);
+}
+
 /** Erster Satz des Seitentexts; keiner, wenn er eine Uhrzeit nennt (das Schema nennt keine). */
 function beschreibung(text: string): string | null {
   const satz = text.split(/(?<=[.!?])\s/u)[0];
