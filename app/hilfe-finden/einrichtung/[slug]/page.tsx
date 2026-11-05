@@ -20,6 +20,8 @@ import {
   HILFE_PATH,
   HILFE_TEXTS,
 } from "@/lib/hilfe";
+import { prepareContent } from "@/lib/html";
+import { hatSichtbarenInhalt } from "@/lib/html-inhalt";
 import { getContent, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
 import { contentMetadata, contentSchema } from "@/lib/seo";
@@ -93,7 +95,8 @@ export async function generateMetadata({ params }: PageProps<"/hilfe-finden/einr
 
 /**
  * Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse,
- * Stadtbezirk, Website und die 4 nächstgelegenen Einrichtungen (Luftlinie).
+ * Stadtbezirk, Website, redaktioneller Text (nur, wenn vorhanden) und die
+ * 4 nächstgelegenen Einrichtungen (Luftlinie).
  */
 export default async function EinrichtungPage({ params }: PageProps<"/hilfe-finden/einrichtung/[slug]">) {
   const content = await load(toPath((await params).slug));
@@ -167,6 +170,10 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe-find
             </>
           ) : null}
         </dl>
+
+        {hatSichtbarenInhalt(content.content) ? (
+          <div className="wp-content mt-10" dangerouslySetInnerHTML={{ __html: prepareContent(content.content) }} />
+        ) : null}
 
         {naehe.length > 0 ? (
           <section aria-labelledby="in-der-naehe" className="mt-12">
