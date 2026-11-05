@@ -8,6 +8,8 @@ import { siteUrl } from "@/lib/env";
 import { getPosts, getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema } from "@/lib/seo";
 import {
+  datumKurz,
+  EINLEITUNG,
   FRAGEN,
   MAERKTE,
   MAERKTE_BESCHREIBUNG,
@@ -15,6 +17,7 @@ import {
   MAERKTE_PATH,
   MAERKTE_TITEL,
   STAND,
+  wannText,
   weihnachtsmaerkteSchema,
   type Markt,
 } from "@/lib/weihnachtsmaerkte";
@@ -59,7 +62,7 @@ function MarktBlock({ markt, passend }: { markt: Markt; passend?: { title: strin
     <article>
       <h3 className={GRUEN_H3}>{markt.name}</h3>
       <dl className="mt-3 space-y-1 leading-relaxed">
-        <Angabe label="Wann">{markt.wann}</Angabe>
+        <Angabe label="Wann">{wannText(markt)}</Angabe>
         {markt.uhrzeit ? <Angabe label="Uhrzeit">{markt.uhrzeit}</Angabe> : null}
         <Angabe label="Wo">{markt.wo}</Angabe>
         {markt.veranstalter ? <Angabe label="Veranstalter">{markt.veranstalter}</Angabe> : null}
@@ -122,10 +125,7 @@ export async function WeihnachtsmaerkteSeite() {
 
       <section className="mt-10">
         <h2 className={GRUEN_H2}>Auf einen Blick</h2>
-        <p className="mt-4 max-w-prose text-lg leading-relaxed">
-          Die ersten Märkte starten am 20. November in den Stadtteilen, die Innenstadt folgt am 26. November und bleibt
-          bis 23. Dezember.
-        </p>
+        <p className="mt-4 max-w-prose text-lg leading-relaxed">{EINLEITUNG}</p>
         {/* Mobil je Markt ein Block statt drei Spalten: Die Tabelle passt dort nicht ohne seitliches Scrollen. */}
         <div className="mt-5">
           <table className="block w-full border-collapse text-left sm:table">
@@ -143,7 +143,7 @@ export async function WeihnachtsmaerkteSeite() {
                     {markt.kurzname ?? markt.name}
                   </td>
                   <td className="mr-3 inline-block sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2 sm:whitespace-nowrap">
-                    {markt.datum}
+                    {datumKurz(markt)}
                   </td>
                   <td className="inline-block text-muted sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2 sm:text-ink">
                     {markt.stadtteil}
