@@ -4,14 +4,20 @@ import Link from "next/link";
 import { MainNav, type NavItem } from "@/components/main-nav";
 import logo from "@/public/images/logo-krefelder-laden.webp";
 import { menueKategorien } from "@/lib/kategorien";
+import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
+
+/** Menüpunkte, die in der Leiste statt einer Kategorie stehen (Kacheln der Startseite bleiben). */
+const ERSETZT: Record<string, NavItem> = {
+  "mein-krefeld": { path: TROEDEL_PATH, label: "Trödelmärkte" },
+};
 
 /**
  * Navigationspunkte: die Kategorien aus lib/kategorien.ts mit imMenue, in
  * Listenreihenfolge – immer, auch ohne Beiträge (die Seite zeigt dann einen
- * Hinweis).
+ * Hinweis). Einträge aus ERSETZT treten an die Stelle ihrer Kategorie.
  */
 function navItems(): NavItem[] {
-  return menueKategorien().map(({ path, label }) => ({ path, label }));
+  return menueKategorien().map(({ slug, path, label }) => ERSETZT[slug] ?? { path, label });
 }
 
 export function SiteHeader() {
