@@ -4,10 +4,12 @@ import Link from "next/link";
 import { MainNav, type NavItem } from "@/components/main-nav";
 import logo from "@/public/images/logo-krefelder-laden.webp";
 import { menueKategorien } from "@/lib/kategorien";
+import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
 
 /** Menüpunkte, die in der Leiste statt einer Kategorie stehen (Kacheln der Startseite bleiben). */
 const ERSETZT: Record<string, NavItem> = {
+  "second-hand": { path: SECOND_HAND_PATH, label: "Second Hand" },
   "mein-krefeld": { path: TROEDEL_PATH, label: "Trödelmärkte" },
 };
 
