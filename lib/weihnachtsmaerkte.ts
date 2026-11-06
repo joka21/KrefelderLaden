@@ -187,7 +187,7 @@ export const FRAGEN: readonly { frage: string; antwort: string }[] = [
   {
     frage: "Welcher Weihnachtsmarkt in Krefeld ist für Familien geeignet?",
     antwort:
-      "Der Familien-Weihnachtsmarkt in Traar richtet sich ausdrücklich an Familien. Auch der Schinkenplatz und Oppum sind klein und übersichtlich.",
+      "Alle Weihnachtsmärkte in Krefeld sind für Familien geeignet. Der Familien-Weihnachtsmarkt in Traar hat sich dem Thema Familie aber besonders gewidmet, mit Programm für Kinder und einer Tombola für einen guten Zweck.",
   },
   {
     frage: "Kostet der Eintritt etwas?",
