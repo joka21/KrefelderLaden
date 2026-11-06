@@ -129,3 +129,24 @@ test("FAQ passt zu den Terminen", () => {
   assert.equal(markt("MIKS").ende, markt("Crefelder").ende);
   assert.ok(dauer.includes(`bis ${tagMonat(markt("MIKS").ende)}`), dauer);
 });
+
+test("FAQ Öffnungszeiten passt zu den Marktdaten", () => {
+  const zeiten = antwort("Wie sind die Öffnungszeiten");
+  const zeitenVon = ({ zeitErsterTag, zeitLetzterTag, uhrzeit }) => [zeitErsterTag, zeitLetzterTag, uhrzeit].join(" ");
+  const erwartet = [
+    ["MIKS", ["13 bis 20 Uhr", "11:30 bis 21 Uhr"]],
+    ["Der besondere", ["10 bis 18 Uhr"]],
+    ["Weihnachtsmarkt auf dem Schinkenplatz", ["14 bis 19 Uhr"]],
+  ];
+  for (const [anfang, spannen] of erwartet) {
+    for (const spanne of spannen) {
+      assert.ok(zeitenVon(markt(anfang)).includes(spanne), `${anfang}: ${spanne} nicht in den Marktdaten`);
+      assert.ok(zeiten.includes(spanne), `${anfang}: ${spanne} nicht in der Antwort`);
+    }
+  }
+  // Keine Zeit in der Antwort, die oben nicht geprüft wird.
+  const genannt = zeiten.match(/\d{1,2}(:\d\d)? bis \d{1,2}(:\d\d)? Uhr/g);
+  assert.deepEqual(genannt.toSorted(), erwartet.flatMap(([, spannen]) => spannen).toSorted());
+  // „stehen die Zeiten noch aus“: Der Crefelder Weihnachtsmarkt hat noch keine Uhrzeit.
+  assert.ok(!/\d Uhr/.test(zeitenVon(markt("Crefelder"))), "Crefelder Weihnachtsmarkt hat inzwischen eine Uhrzeit");
+});

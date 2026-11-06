@@ -15,7 +15,7 @@ export const MAERKTE_PATH = "/weihnachtsmaerkte-in-krefeld/";
 export const MAERKTE_H1 = "Weihnachtsmärkte in Krefeld 2026: alle Termine von Bruckhausen bis Fischeln";
 export const MAERKTE_TITEL = "Weihnachtsmärkte Krefeld 2026: alle Termine & Orte";
 export const MAERKTE_BESCHREIBUNG =
-  "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Uhrzeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.";
+  "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Öffnungszeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.";
 
 /** Geplante Adressen des Themas: 301 auf MAERKTE_PATH (proxy.ts). */
 export const ALTE_PFADE: readonly string[] = ["/ratgeber/weihnachtsmaerkte-krefeld-2026/"];
@@ -167,7 +167,7 @@ export const MAERKTE: readonly Markt[] = [
 
 /** Einleitung im Abschnitt „Auf einen Blick“. */
 export const EINLEITUNG =
-  "Die ersten Märkte starten am 20. November in den Stadtteilen, die Innenstadt folgt am 26. November und bleibt bis 23. Dezember.";
+  "Die ersten Märkte starten am 20. November in den Stadtteilen, die Innenstadt folgt am 26. November und bleibt bis 23. Dezember. Die Öffnungszeiten findest du bei jedem Markt. Wo sie noch fehlen, tragen wir sie nach, sobald der Veranstalter sie veröffentlicht.";
 
 export const FRAGEN: readonly { frage: string; antwort: string }[] = [
   {
@@ -192,6 +192,11 @@ export const FRAGEN: readonly { frage: string; antwort: string }[] = [
   {
     frage: "Kostet der Eintritt etwas?",
     antwort: "Die Krefelder Weihnachtsmärkte sind nach unserem Stand ohne Eintritt. Für Oppum ist das vom Veranstalter bestätigt.",
+  },
+  {
+    frage: "Wie sind die Öffnungszeiten der Weihnachtsmärkte in Krefeld?",
+    antwort:
+      "Jeder Veranstalter legt seine Zeiten selbst fest. MIKS auf dem Dionysiusplatz hat sonntags bis dienstags von 13 bis 20 Uhr geöffnet, mittwochs bis samstags von 11:30 bis 21 Uhr. Der Besondere Weihnachtsmarkt am Rathaus läuft von 10 bis 18 Uhr, der Markt auf dem Schinkenplatz von 14 bis 19 Uhr. Für einige Märkte, darunter der Crefelder Weihnachtsmarkt, stehen die Zeiten noch aus. Alle bekannten Öffnungszeiten findest du oben bei den einzelnen Märkten.",
   },
 ];
 
