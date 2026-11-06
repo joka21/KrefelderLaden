@@ -4,11 +4,13 @@ import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { ContentView } from "@/components/content-view";
 import { JsonLd } from "@/components/json-ld";
 import { KategorieSeite, kategorieMetadata } from "@/components/kategorie-seite";
+import { SecondHandSeite, secondHandMetadata } from "@/components/second-hand";
 import { TroedelmaerkteSeite, troedelmaerkteMetadata } from "@/components/troedelmaerkte";
 import { WeihnachtsmaerkteSeite, weihnachtsmaerkteMetadata } from "@/components/weihnachtsmaerkte";
 import { HILFE_KATEGORIE, isKategorie, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getContent, getPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
+import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { contentMetadata, contentSchema } from "@/lib/seo";
 import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
 import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
@@ -106,6 +108,9 @@ export async function generateMetadata({ params }: PageProps<"/[...slug]">): Pro
   if (path === TROEDEL_PATH) {
     return troedelmaerkteMetadata();
   }
+  if (path === SECOND_HAND_PATH) {
+    return secondHandMetadata();
+  }
   // Nicht gefunden bzw. Weiterleitung entscheidet die Seite; hier nicht werfen,
   // damit die 404-Seite vollständig als HTML ausgeliefert wird.
   const draft = await getDraftContent(path);
@@ -127,6 +132,9 @@ export default async function ContentPage({ params }: PageProps<"/[...slug]">) {
   }
   if (toPath(slug) === TROEDEL_PATH) {
     return <TroedelmaerkteSeite />;
+  }
+  if (toPath(slug) === SECOND_HAND_PATH) {
+    return <SecondHandSeite />;
   }
   const [content, settings] = await Promise.all([load(toPath(slug)), getSettings()]);
 

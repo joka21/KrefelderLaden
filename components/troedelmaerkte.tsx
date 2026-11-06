@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 import { siteUrl } from "@/lib/env";
 import { getSettings } from "@/lib/kls";
+import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { defaultMetadata, defaultSchema } from "@/lib/seo";
 import {
   adresse,
@@ -222,6 +224,15 @@ export async function TroedelmaerkteSeite() {
           </ul>
         </section>
       ) : null}
+
+      <aside className="mt-10 rounded-lg border border-line bg-wash p-5 text-lg leading-relaxed">
+        <p>
+          Lieber im Laden stöbern?{" "}
+          <Link href={SECOND_HAND_PATH} className={`font-bold ${TEXT_LINK}`}>
+            Second-Hand-Läden in Krefeld
+          </Link>
+        </p>
+      </aside>
 
       <section className="mt-10">
         <h2 className={GRUEN_H2}>Häufige Fragen</h2>
