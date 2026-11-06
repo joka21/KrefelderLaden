@@ -4,6 +4,7 @@ import type { StaticImageData } from "next/image";
 
 import krefeldKocht from "@/public/images/krefeld-kocht.webp";
 import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCategory } from "@/lib/kls";
+import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
 import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 /**
@@ -46,7 +47,12 @@ export const KATEGORIEN: readonly Kategorie[] = [
     ],
     link: { text: "Alle Weihnachtsmärkte in Krefeld 2026", path: MAERKTE_PATH },
   },
-  { slug: "second-hand", label: "Second Hand", imMenue: true },
+  {
+    slug: "second-hand",
+    label: "Second Hand",
+    imMenue: true,
+    link: { text: "Alle Trödelmärkte und Flohmärkte in Krefeld mit Terminen", path: TROEDEL_PATH },
+  },
   {
     slug: "niederrhein-tapas",
     label: "Niederrhein Tapas",

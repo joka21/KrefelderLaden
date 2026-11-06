@@ -4,6 +4,7 @@ import { siteUrl } from "@/lib/env";
 import { BEREICHE, BEZIRKE, bereichPath, bezirkPath, getEinrichtungen, HILFE_PATH, type Einrichtung } from "@/lib/hilfe";
 import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getPaths, getPosts } from "@/lib/kls";
+import { STAND as TROEDEL_STAND, TROEDEL_PATH } from "@/lib/troedelmaerkte";
 import { MAERKTE_PATH, STAND } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
@@ -73,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   // Inhalt kommt aus dem Frontend, daher unabhängig von /paths und mit eigenem Stand.
   entries.set(MAERKTE_PATH, { url: base + MAERKTE_PATH, lastModified: STAND.iso });
+  entries.set(TROEDEL_PATH, { url: base + TROEDEL_PATH, lastModified: TROEDEL_STAND.iso });
 
   return [...entries.values()];
 }
