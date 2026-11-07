@@ -13,8 +13,13 @@
  * - „Termin im Portal – Uhrzeit prüfen“ → „ab … Uhr, Ende noch offen“, nicht im JSON-LD
  * - sonst mit „gelistet“ oder „bestätigt“ → normal, im JSON-LD
  * Die Spalte „hinweise“ enthält Notizen der Recherche und wird nicht angezeigt.
+ *
+ * Angaben für Verkäufer: data/troedelmaerkte_verkaeufer.csv, eine Zeile je Markt
+ * (Spalte „markt“ = „titel“ der Termin-CSV). Leere Felder erscheinen nicht; ohne
+ * einen Wert fehlt der Abschnitt „Für Verkäufer“ ganz.
  */
 
+import verkaeuferZeilen from "./troedelmaerkte-verkaeufer.json" with { type: "json" };
 import zeilen from "./troedelmaerkte-daten.json" with { type: "json" };
 
 /** Eine Zeile der CSV; leere Felder sind "". */
@@ -40,6 +45,21 @@ export interface TroedelZeile {
 }
 
 export const ZEILEN: readonly TroedelZeile[] = zeilen;
+
+/** Eine Zeile der Verkäufer-CSV; leere Felder sind "". */
+export interface VerkaeuferZeile {
+  markt: string;
+  standplatz_url: string;
+  standgebuehr: string;
+  aufbau_ab: string;
+  /** „Halle“, „Freigelände“ oder „Halle und Freigelände“. */
+  gelaende: string;
+  /** „ja“ oder „nein“. */
+  ueberdacht: string;
+}
+
+export const VERKAEUFER_ZEILEN: readonly VerkaeuferZeile[] = verkaeuferZeilen;
+export const GELAENDE = ["Halle", "Freigelände", "Halle und Freigelände"] as const;
 
 export const TROEDEL_PATH = "/troedelmarkt-krefeld/";
 export const TROEDEL_H1 = "Trödelmarkt Krefeld: alle Termine 2026/2027";
@@ -216,6 +236,34 @@ export function adresse({ strasse, plz }: Pick<Termin, "strasse" | "plz">): stri
 
 /** „2026-11-06“ → „06.11.2026“. */
 export const datumDeutsch = (iso: string) => iso.split("-").reverse().join(".");
+
+/* ------------------------------------------------------------------ */
+/* Für Verkäufer                                                       */
+/* ------------------------------------------------------------------ */
+
+export interface VerkaeuferInfo {
+  standplatzUrl: string;
+  standgebuehr: string;
+  aufbauAb: string;
+  gelaende: string;
+  /** null = keine Angabe. */
+  ueberdacht: boolean | null;
+}
+
+/** Angaben für Verkäufer eines Markts; null, wenn kein Feld gefüllt ist. */
+export function verkaeuferInfo(markt: string, zeilen: readonly VerkaeuferZeile[] = VERKAEUFER_ZEILEN): VerkaeuferInfo | null {
+  const zeile = zeilen.find((eintrag) => eintrag.markt === markt);
+  if (!zeile) return null;
+  const info: VerkaeuferInfo = {
+    standplatzUrl: zeile.standplatz_url,
+    standgebuehr: zeile.standgebuehr,
+    aufbauAb: zeile.aufbau_ab,
+    gelaende: zeile.gelaende,
+    ueberdacht: zeile.ueberdacht === "ja" ? true : zeile.ueberdacht === "nein" ? false : null,
+  };
+  const gefuellt = info.standplatzUrl || info.standgebuehr || info.aufbauAb || info.gelaende || info.ueberdacht !== null;
+  return gefuellt ? info : null;
+}
 
 /* ------------------------------------------------------------------ */
 /* Auswahl nach Datum                                                  */

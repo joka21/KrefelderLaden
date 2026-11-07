@@ -27,6 +27,7 @@ import {
   TROEDEL_TITEL,
   troedelmaerkteSchema,
   uhrzeitText,
+  verkaeuferInfo,
   wochenendTermine,
   type Termin,
 } from "@/lib/troedelmaerkte";
@@ -67,6 +68,30 @@ function TerminStand({ termin }: { termin: Termin }) {
         </a>
       ) : null}
     </span>
+  );
+}
+
+/** „Für Verkäufer“ im Abschnitt eines Markts; nur mit mindestens einem Wert. */
+function FuerVerkaeufer({ markt }: { markt: string }) {
+  const info = verkaeuferInfo(markt);
+  if (!info) return null;
+  return (
+    <div className="mt-4 rounded-md bg-wash p-4">
+      <p className="font-bold">Für Verkäufer</p>
+      <dl className="mt-2 space-y-1 leading-relaxed">
+        {info.standgebuehr ? <Angabe label="Standgebühr">{info.standgebuehr}</Angabe> : null}
+        {info.aufbauAb ? <Angabe label="Aufbau ab">{info.aufbauAb}</Angabe> : null}
+        {info.gelaende ? <Angabe label="Gelände">{info.gelaende}</Angabe> : null}
+        {info.ueberdacht !== null ? <Angabe label="Überdacht">{info.ueberdacht ? "ja" : "nein"}</Angabe> : null}
+      </dl>
+      {info.standplatzUrl ? (
+        <p className="mt-2">
+          <a href={info.standplatzUrl} className={TEXT_LINK} rel="noopener">
+            Standplatz buchen
+          </a>
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -218,6 +243,7 @@ export async function TroedelmaerkteSeite() {
                   </a>
                 </p>
               ) : null}
+              <FuerVerkaeufer markt={markt} />
             </article>
           ))}
         </div>
