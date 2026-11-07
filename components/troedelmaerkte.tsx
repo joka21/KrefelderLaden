@@ -8,6 +8,8 @@ import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { defaultMetadata, defaultSchema } from "@/lib/seo";
 import {
   adresse,
+  antwortZeile,
+  antwortZuerst,
   BESONDERE,
   datumKurz,
   datumLang,
@@ -121,11 +123,23 @@ export async function TroedelmaerkteSeite() {
   const naechster = kommende[0];
   const maerkte = kommendeMaerkte(heute);
   const schema = defaultSchema(settings, { name: TROEDEL_TITEL, path: TROEDEL_PATH });
+  const antwort = antwortZuerst(heute);
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-4 pt-10 sm:px-8 sm:pt-14">
       <JsonLd data={troedelmaerkteSchema(schema, siteUrl() + TROEDEL_PATH, heute)} />
       <h1 className={GRUEN_H1}>{TROEDEL_H1}</h1>
+      {/* Antwort zuerst: der wichtigste Satz der Seite, serverseitig für heute in Europe/Berlin. */}
+      <div className="mt-6 max-w-3xl rounded-lg border-2 border-green p-5 text-lg leading-relaxed">
+        <p className="font-bold">{antwort.satz}</p>
+        {antwort.liste.length > 0 ? (
+          <ul className="mt-2 list-disc pl-6">
+            {antwort.liste.map((termin) => (
+              <li key={termin.zeile}>{antwortZeile(termin)}</li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
       <div className="mt-6 max-w-3xl space-y-4 text-lg leading-relaxed">
         <p>
           Samstags früh an der Grotenburg stöbern, sonntags bei METRO, Globus oder Kaufland – oder auf einem Bücher- oder

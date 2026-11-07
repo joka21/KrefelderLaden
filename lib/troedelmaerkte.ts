@@ -262,6 +262,54 @@ export function kommendeMaerkte(heute: string): Markt[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* Antwort zuerst (ganz oben auf der Seite)                            */
+/* ------------------------------------------------------------------ */
+
+/** „von 7 bis 14 Uhr“, „ab 13 Uhr“ oder "" (ohne Uhrzeit). */
+export function zeitraum({ beginn, ende, art }: Pick<Termin, "beginn" | "ende" | "art">): string {
+  if (!beginn) return "";
+  if (ende && art !== "uhrzeitOffen") return `von ${zeit(beginn)} bis ${zeit(ende)} Uhr`;
+  return `ab ${zeit(beginn)} Uhr`;
+}
+
+/** „Markt, von 7 bis 14 Uhr“ für die Liste bei mehreren Märkten an einem Tag. */
+export const antwortZeile = (termin: Termin) =>
+  [termin.markt, zeitraum(termin)].filter(Boolean).join(", ") + (termin.art === "regeltermin" ? ` (${REGELTERMIN_HINWEIS})` : "");
+
+/**
+ * Satz ganz oben: Was ist heute, sonst wann ist der nächste Markt. Bei mehreren
+ * Märkten heute steht der Satz mit Doppelpunkt da, die Märkte in `liste`.
+ */
+export function antwortZuerst(heute: string): { satz: string; liste: Termin[] } {
+  const kommende = kommendeTermine(heute);
+  const heutige = kommende.filter(({ datum }) => datum === heute);
+  const tag = datumLang(heute);
+
+  if (heutige.length === 1) {
+    const [termin] = heutige;
+    const zeiten = zeitraum(termin);
+    const hinweis = termin.art === "regeltermin" ? ` ${REGELTERMIN_HINWEIS}.` : "";
+    return { satz: `Heute, ${tag}, findet in Krefeld ${termin.markt} statt${zeiten ? `, ${zeiten}` : ""}.${hinweis}`, liste: [] };
+  }
+  if (heutige.length > 1) {
+    return { satz: `Heute, ${tag}, finden in Krefeld ${heutige.length} Trödelmärkte statt:`, liste: heutige };
+  }
+
+  const naechster = kommende[0];
+  if (!naechster) {
+    return {
+      satz: "Heute findet in Krefeld kein Trödelmarkt statt. Neue Termine tragen wir nach, sobald sie veröffentlicht sind.",
+      liste: [],
+    };
+  }
+  const amSelbenTag = kommende.filter(({ datum }) => datum === naechster.datum);
+  return {
+    satz: `Heute findet in Krefeld kein Trödelmarkt statt. Der nächste ist am ${datumLang(naechster.datum)}: ${aufzaehlung([...new Set(amSelbenTag.map(({ markt }) => markt))])}.`,
+    liste: [],
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* Häufige Fragen (aus den Daten)                                      */
 /* ------------------------------------------------------------------ */
 
