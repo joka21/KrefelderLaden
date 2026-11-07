@@ -59,8 +59,10 @@ export const KATEGORIEN: readonly Kategorie[] = [
     metaTitle: "Weihnachten in Krefeld 2026: Märkte, Geschenke, Termine",
     titelOhneMarke: true,
     auchLeerIndexieren: true,
+    metaDescription:
+      "Weihnachten in Krefeld 2026: alle Weihnachtsmärkte von Bruckhausen bis Fischeln mit Terminen, dazu Beiträge zu Geschenken und Advent in der Stadt.",
     intro: [
-      "Wann und wo ist in Krefeld Weihnachtsmarkt? Otto hat alle Märkte 2026 für dich zusammengetragen, mit Terminen und Orten von Bruckhausen bis Fischeln.",
+      "Weihnachten in Krefeld beginnt in den Stadtteilen: Am 20. November öffnet der Wintermarkt An Bruckhausen in Traar, am 21. November folgen die Funkelnden Sterne in Oppum. In der Innenstadt starten am 26. November MIKS auf dem Dionysiusplatz und der Crefelder Weihnachtsmarkt an der Alten Kirche, beide laufen bis 23. Dezember. Dazwischen liegen viele kleine Märkte, die nur an einem Wochenende da sind: Traar, der Schinkenplatz, Uerdingen, Linn, der Besondere Weihnachtsmarkt am Rathaus, Hüls und zum Schluss Fischeln vom 18. bis 20. Dezember. Am Totensonntag, 22. November, ist auf den Märkten in der Regel Ruhe. Noch mehr Advent gefällig? Am 5. Dezember fährt der Schluff als Nikolausfahrt ab Nordbahnhof, und vom 17. Dezember bis 3. Januar 2027 gastiert der Krefelder Weihnachtscircus an der Uerdinger Straße. Alle Termine, Öffnungszeiten und Orte findest du auf unserer Seite zu den Weihnachtsmärkten in Krefeld.",
     ],
     link: { text: "Alle Weihnachtsmärkte in Krefeld 2026", path: MAERKTE_PATH },
   },
