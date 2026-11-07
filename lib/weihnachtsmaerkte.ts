@@ -6,7 +6,12 @@
  * ein Termin, meldet `npm test`, wenn Einleitung oder FAQ nicht mehr dazu passen.
  * Bestätigte Uhrzeiten kommen als Text in `zeitErsterTag`/`zeitLetzterTag` oder `uhrzeit`.
  * Bei jeder Aktualisierung STAND anpassen; er steht im Hinweis, in dateModified und in der Sitemap.
+ *
+ * Uhrzeiten im Schema: nur, wo `zeitErsterTag` bzw. `zeitLetzterTag` genau die Form
+ * „15 bis 19 Uhr“ oder „ab 14 Uhr“ hat (siehe zeitspanne); sonst nur das Datum.
  */
+
+import { eventSchema, type EventStatus } from "./schema/event.ts";
 
 export const STAND = { iso: "2026-11-02", text: "2. November 2026" } as const;
 
@@ -43,9 +48,15 @@ export interface Markt {
   veranstalterPersonen?: boolean;
   eintritt?: string;
   text: string;
-  ort: { name: string; strasse?: string; plz?: string };
+  ort: { name: string; strasse?: string; plz?: string; lat?: string; lon?: string };
   /** Nur, wo der Veranstalter freien Eintritt bestätigt hat. */
   eintrittFrei?: boolean;
+  /** Offizielle Website des Markts; erscheint als Link und im Schema (sameAs). */
+  website?: string;
+  /** Website des Veranstalters; nur im Schema (organizer.url). */
+  veranstalterUrl?: string;
+  /** Nur bei Absage oder Verschiebung setzen. */
+  status?: EventStatus;
 }
 
 export const MAERKTE: readonly Markt[] = [
@@ -277,39 +288,57 @@ function beschreibung(text: string): string | null {
   return /\b\d{1,2}(:\d\d)? Uhr\b/u.test(satz) ? null : satz;
 }
 
-function marktSchema(markt: Markt, index: number, pageUrl: string) {
-  const { ort } = markt;
-  const description = beschreibung(markt.text);
-  return {
-    "@type": "Event",
-    "@id": `${pageUrl}#markt-${index + 1}`,
-    name: markt.name,
-    ...(description ? { description } : {}),
-    startDate: markt.start,
-    ...(markt.ende ? { endDate: markt.ende } : {}),
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    url: pageUrl,
-    location: {
-      "@type": "Place",
-      name: ort.name,
-      address: {
-        "@type": "PostalAddress",
-        ...(ort.strasse ? { streetAddress: ort.strasse } : {}),
-        ...(ort.plz ? { postalCode: ort.plz } : {}),
-        addressLocality: "Krefeld",
-        addressCountry: "DE",
-      },
-    },
-    ...(markt.veranstalter
-      ? { organizer: { "@type": markt.veranstalterPersonen ? "Person" : "Organization", name: markt.veranstalter } }
-      : {}),
-    ...(markt.eintrittFrei ? { isAccessibleForFree: true } : {}),
-  };
+/** „15 bis 19 Uhr“ → { von: "15:00", bis: "19:00" }, „ab 14 Uhr“ → { von: "14:00" }; andere Texte → {}. */
+export function zeitspanne(text: string | undefined): { von?: string; bis?: string } {
+  const treffer = text?.match(/^(?:ab )?(\d{1,2})(?::(\d\d))?(?: bis (\d{1,2})(?::(\d\d))?)? Uhr$/u);
+  if (!treffer) return {};
+  const [, vonH, vonM = "00", bisH, bisM = "00"] = treffer;
+  const hhmm = (h: string, m: string) => `${h.padStart(2, "0")}:${m}`;
+  return { von: hhmm(vonH, vonM), ...(bisH && !text?.startsWith("ab ") ? { bis: hhmm(bisH, bisM) } : {}) };
 }
 
-/** Ergänzt das Schema der Seite um dateModified, je Markt ein Event und die FAQPage. */
-export function weihnachtsmaerkteSchema<T extends { "@graph": object[] }>(schema: T, pageUrl: string): T {
+/** Sprungmarke eines Markts auf der Seite, z. B. „markt-linner-weihnachtsmarkt“. */
+export function marktAnker(markt: Pick<Markt, "name">): string {
+  const slug = markt.name
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `markt-${slug}`;
+}
+
+function marktSchema(markt: Markt, index: number, pageUrl: string, bild?: string) {
+  const ersterTag = zeitspanne(markt.zeitErsterTag);
+  // Ende: bei Eintagesmärkten aus der Zeit des ersten Tags, sonst aus der des letzten.
+  const ende = markt.ende ? zeitspanne(markt.zeitLetzterTag).bis : ersterTag.bis;
+  return eventSchema({
+    id: `${pageUrl}#markt-${index + 1}`,
+    name: markt.name,
+    description: beschreibung(markt.text),
+    datum: markt.start,
+    beginn: ersterTag.von,
+    bisDatum: markt.ende,
+    ende,
+    status: markt.status,
+    url: `${pageUrl}#${marktAnker(markt)}`,
+    website: markt.website,
+    image: bild,
+    ort: markt.ort,
+    veranstalter: markt.veranstalter
+      ? { name: markt.veranstalter, url: markt.veranstalterUrl, person: markt.veranstalterPersonen }
+      : undefined,
+    eintrittFrei: markt.eintrittFrei,
+  });
+}
+
+/**
+ * Ergänzt das Schema der Seite um dateModified, je Markt ein Event und die FAQPage.
+ * `bild`: absolute URL des Seitenbilds (Otto), als image der Events.
+ */
+export function weihnachtsmaerkteSchema<T extends { "@graph": object[] }>(schema: T, pageUrl: string, bild?: string): T {
   const graph = schema["@graph"].map((node) =>
     "@id" in node && node["@id"] === `${pageUrl}#webpage` ? { ...node, dateModified: STAND.iso } : node,
   );
@@ -317,7 +346,7 @@ export function weihnachtsmaerkteSchema<T extends { "@graph": object[] }>(schema
     ...schema,
     "@graph": [
       ...graph,
-      ...MAERKTE.map((markt, index) => marktSchema(markt, index, pageUrl)),
+      ...MAERKTE.map((markt, index) => marktSchema(markt, index, pageUrl, bild)),
       {
         "@type": "FAQPage",
         "@id": `${pageUrl}#faq`,

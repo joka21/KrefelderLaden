@@ -9,10 +9,12 @@ import {
   FRAGEN,
   MAERKTE,
   MAERKTE_PATH,
+  marktAnker,
   STAND,
   tagMonat,
   wannText,
   weihnachtsmaerkteSchema,
+  zeitspanne,
 } from "../lib/weihnachtsmaerkte.ts";
 
 test("keine Weiterleitungskette: Hauptseite ist keine alte Adresse", () => {
@@ -20,19 +22,57 @@ test("keine Weiterleitungskette: Hauptseite ist keine alte Adresse", () => {
 });
 
 const URL_SEITE = "https://example.org/weihnachtsmaerkte-in-krefeld/";
-const { "@graph": graph } = weihnachtsmaerkteSchema({ "@graph": [{ "@id": `${URL_SEITE}#webpage` }] }, URL_SEITE);
+const BILD = "https://example.org/otto.webp";
+const { "@graph": graph } = weihnachtsmaerkteSchema({ "@graph": [{ "@id": `${URL_SEITE}#webpage` }] }, URL_SEITE, BILD);
 const events = graph.filter((node) => node["@type"] === "Event");
 
-test("je Markt ein Event: Datum ohne Uhrzeit, Enddatum nur bei mehrtägigen Märkten", () => {
+const DATUM_ODER_ZEIT = /^2026-\d\d-\d\d(T\d\d:\d\d:00\+01:00)?$/;
+
+test("je Markt ein Event: Datum, Uhrzeit mit Offset nur aus den Zeitangaben", () => {
   assert.equal(events.length, 11);
   assert.equal(events.length, MAERKTE.length);
-  for (const event of events) {
-    assert.match(event.startDate, /^2026-\d\d-\d\d$/, event.name);
+  MAERKTE.forEach((markt, index) => {
+    const event = events[index];
+    assert.match(event.startDate, DATUM_ODER_ZEIT, event.name);
+    assert.ok(event.startDate.startsWith(markt.start), event.name);
     if ("endDate" in event) {
-      assert.match(event.endDate, /^2026-\d\d-\d\d$/, event.name);
+      assert.match(event.endDate, DATUM_ODER_ZEIT, event.name);
+      assert.ok(event.endDate.startsWith(markt.ende ?? markt.start), event.name);
       assert.ok(event.startDate < event.endDate, event.name);
+    } else {
+      assert.equal(markt.ende, undefined, event.name);
     }
-  }
+  });
+});
+
+test("Uhrzeiten im Schema genau dort, wo die Daten sie nennen", () => {
+  const zeiten = Object.fromEntries(events.map((event) => [event.name, [event.startDate, event.endDate]]));
+  assert.deepEqual(zeiten["Wintermarkt An Bruckhausen"], ["2026-11-20T15:00:00+01:00", "2026-11-21"]);
+  assert.deepEqual(zeiten["Funkelnde Sterne in Oppum"], ["2026-11-21T14:00:00+01:00", undefined]);
+  assert.deepEqual(zeiten["Weihnachtsmarkt auf dem Schinkenplatz"], ["2026-11-28T14:00:00+01:00", "2026-11-28T19:00:00+01:00"]);
+  assert.deepEqual(zeiten["Der besondere Weihnachtsmarkt"], ["2026-12-05T10:00:00+01:00", "2026-12-05T18:00:00+01:00"]);
+  assert.deepEqual(zeiten["WeihnachtsBubbelmaat Hüls"], ["2026-12-12", "2026-12-13T22:00:00+01:00"]);
+  assert.deepEqual(zeiten["Linner Weihnachtsmarkt"], ["2026-12-04", "2026-12-06"]);
+});
+
+test("zeitspanne: nur eindeutige Angaben", () => {
+  assert.deepEqual(zeitspanne("15 bis 19 Uhr"), { von: "15:00", bis: "19:00" });
+  assert.deepEqual(zeitspanne("11:30 bis 21 Uhr"), { von: "11:30", bis: "21:00" });
+  assert.deepEqual(zeitspanne("ab 14 Uhr"), { von: "14:00" });
+  assert.deepEqual(zeitspanne("wird vom Veranstalter noch veröffentlicht"), {});
+  assert.deepEqual(zeitspanne("sonntags bis dienstags 13 bis 20 Uhr"), {});
+  assert.deepEqual(zeitspanne(undefined), {});
+});
+
+test("Bild, Sprungmarke und Website", () => {
+  MAERKTE.forEach((markt, index) => {
+    assert.equal(events[index].image, BILD, markt.name);
+    assert.equal(events[index].url, `${URL_SEITE}#${marktAnker(markt)}`, markt.name);
+    assert.equal(events[index].sameAs, markt.website, markt.name);
+  });
+  const anker = MAERKTE.map(marktAnker);
+  assert.equal(new Set(anker).size, anker.length, "Sprungmarken eindeutig");
+  assert.equal(marktAnker({ name: "WeihnachtsBubbelmaat Hüls" }), "markt-weihnachtsbubbelmaat-huels");
 });
 
 test("Pflichtfelder und Status je Event", () => {
@@ -45,7 +85,7 @@ test("Pflichtfelder und Status je Event", () => {
     assert.equal(event.location.address.addressCountry, "DE", event.name);
     assert.equal(event.eventStatus, "https://schema.org/EventScheduled", event.name);
     assert.equal(event.eventAttendanceMode, "https://schema.org/OfflineEventAttendanceMode", event.name);
-    assert.equal(event.url, URL_SEITE, event.name);
+    assert.ok(event.url.startsWith(`${URL_SEITE}#markt-`), event.name);
   }
 });
 

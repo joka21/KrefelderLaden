@@ -12,6 +12,7 @@ import {
   EINLEITUNG,
   FRAGEN,
   MAERKTE,
+  marktAnker,
   MAERKTE_BESCHREIBUNG,
   MAERKTE_H1,
   MAERKTE_PATH,
@@ -59,7 +60,7 @@ function Angabe({ label, children }: { label: string; children: React.ReactNode 
 
 function MarktBlock({ markt, passend }: { markt: Markt; passend?: { title: string; path: string } }) {
   return (
-    <article>
+    <article id={marktAnker(markt)} className="scroll-mt-6">
       <h3 className={GRUEN_H3}>{markt.name}</h3>
       <dl className="mt-3 space-y-1 leading-relaxed">
         <Angabe label="Wann">{wannText(markt)}</Angabe>
@@ -98,7 +99,7 @@ export async function WeihnachtsmaerkteSeite() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-4 pt-10 sm:px-8 sm:pt-14">
-      <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH)} />
+      <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH, siteUrl() + ottoWeihnachten.src)} />
       <h1 className={GRUEN_H1}>{MAERKTE_H1}</h1>
       {/* Otto rechts, der Text fließt links daneben: 160 px auf dem Handy, 200 px ab md. */}
       <div className="mt-6 flow-root max-w-3xl text-lg leading-relaxed hyphens-auto md:hyphens-none">
