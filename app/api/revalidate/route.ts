@@ -1,7 +1,8 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { after, type NextRequest } from "next/server";
 
-import { cronSecret, klsSite, revalidateSecret } from "@/lib/env";
+import { cronSecret, klsSite, revalidateSecret, siteUrl } from "@/lib/env";
+import { meldeIndexNow } from "@/lib/indexnow";
 import { TAGS } from "@/lib/kls";
 import { secretMatches } from "@/lib/secrets";
 import { TAEGLICHE_PFADE } from "@/lib/taeglich";
@@ -14,12 +15,13 @@ import { TAEGLICHE_PFADE } from "@/lib/taeglich";
  * Body: { secret, site, events: string[], paths: string[] }
  *
  * Verarbeitet alle gelieferten Pfade, auch Frontend-Routen ohne
- * WordPress-Inhalt wie „/“ und „/ratgeber/“.
+ * WordPress-Inhalt wie „/“ und „/ratgeber/“. Die Pfade gehen danach an
+ * IndexNow (lib/indexnow.ts, nur im Production-Deploy).
  *
  * GET /api/revalidate – täglicher Vercel-Cron (vercel.json). Header
  * „Authorization: Bearer {CRON_SECRET}“, sonst 401. Erneuert TAEGLICHE_PFADE
  * und ruft sie danach einmal auf, damit der erste Besucher nach Mitternacht
- * schon die neue Fassung bekommt.
+ * schon die neue Fassung bekommt; danach Meldung an IndexNow.
  */
 
 const EXPIRE_NOW = { expire: 0 };
@@ -100,6 +102,9 @@ export async function POST(request: NextRequest) {
     revalidatePath("/", "layout");
   }
 
+  // Nach der Antwort an IndexNow melden; WordPress wartet nicht darauf.
+  after(() => meldeIndexNow(siteUrl(), paths));
+
   return Response.json({ revalidated: true, events, paths: paths.length });
 }
 
@@ -121,6 +126,7 @@ export async function GET(request: NextRequest) {
         fetch(origin + path, { cache: "no-store" }).catch((error) => console.error(`Cron ${path}:`, error)),
       ),
     );
+    await meldeIndexNow(siteUrl(), TAEGLICHE_PFADE);
   });
 
   return Response.json({ revalidated: true, paths: TAEGLICHE_PFADE });
