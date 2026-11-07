@@ -4,6 +4,7 @@ import type { StaticImageData } from "next/image";
 
 import krefeldKocht from "@/public/images/krefeld-kocht.webp";
 import { getCategory, getCategoryPostIds, getPosts, type KlsPostItem, type WpCategory } from "@/lib/kls";
+import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
 import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
@@ -21,6 +22,9 @@ import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
  * metaDescription (höchstens 155 Zeichen), intro (Absätze unter der
  * Unterzeile aus WordPress), image (Motiv neben dem Text), link (deutlicher
  * Link unter dem Text).
+ *
+ * leerWeiterleitung: Solange die Kategorie keinen Beitrag hat, leitet /{slug}/
+ * dauerhaft dorthin weiter (308); mit dem ersten Beitrag erscheint die Seite wieder.
  */
 export interface Kategorie {
   slug: string;
@@ -34,6 +38,7 @@ export interface Kategorie {
   intro?: readonly string[];
   image?: { src: StaticImageData; alt: string };
   link?: { text: string; path: string };
+  leerWeiterleitung?: string;
 }
 
 export const KATEGORIEN: readonly Kategorie[] = [
@@ -52,6 +57,7 @@ export const KATEGORIEN: readonly Kategorie[] = [
     label: "Second Hand",
     imMenue: true,
     link: { text: "Alle Trödelmärkte und Flohmärkte in Krefeld mit Terminen", path: TROEDEL_PATH },
+    leerWeiterleitung: SECOND_HAND_PATH,
   },
   {
     slug: "niederrhein-tapas",

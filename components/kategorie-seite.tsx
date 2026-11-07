@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { JsonLd } from "@/components/json-ld";
 import { pageHref, Pagination } from "@/components/pagination";
@@ -29,9 +29,16 @@ export function kategorieBeschreibung(kategorie: WpCategory): string {
   return decodeEntities(kategorie.description.replace(/<[^>]+>/g, "")).trim();
 }
 
-/** Kategorie und Beiträge einer Seite; 404, wenn Kategorie oder Seite fehlen. */
+/**
+ * Kategorie und Beiträge einer Seite; 404, wenn Kategorie oder Seite fehlen.
+ * Leere Kategorien mit leerWeiterleitung leiten weiter (lib/kategorien.ts).
+ */
 export async function loadKategorie(slug: string, page: number): Promise<KategorieDaten> {
   const daten = await getKategorieSeite(slug, page);
+  const ziel = findKategorie(slug)?.leerWeiterleitung;
+  if (daten && daten.total === 0 && ziel) {
+    permanentRedirect(ziel);
+  }
   if (!daten || (page > 1 && daten.posts.length === 0)) {
     notFound();
   }
