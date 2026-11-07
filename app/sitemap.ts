@@ -6,7 +6,7 @@ import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@
 import { getPaths, getPosts } from "@/lib/kls";
 import { SECOND_HAND_PATH, STAND as SECOND_HAND_STAND } from "@/lib/second-hand";
 import { STAND as TROEDEL_STAND, TROEDEL_PATH } from "@/lib/troedelmaerkte";
-import { MAERKTE_PATH, STAND } from "@/lib/weihnachtsmaerkte";
+import { ALTE_PFADE, MAERKTE_PATH, STAND } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
 
@@ -72,6 +72,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   for (const item of paths) {
     entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.lastmod });
+  }
+  // Weitergeleitete Adressen (proxy.ts) gehören nicht in die Sitemap, auch wenn WordPress sie noch liefert.
+  for (const path of ALTE_PFADE) {
+    entries.delete(path);
   }
   // Inhalt kommt aus dem Frontend, daher unabhängig von /paths und mit eigenem Stand.
   entries.set(MAERKTE_PATH, { url: base + MAERKTE_PATH, lastModified: STAND.iso });

@@ -22,8 +22,14 @@ export const MAERKTE_TITEL = "Weihnachtsmärkte Krefeld 2026: alle Termine & Ort
 export const MAERKTE_BESCHREIBUNG =
   "Alle Weihnachtsmärkte in Krefeld 2026: Termine, Öffnungszeiten und Orte – von MIKS und Crefelder Weihnachtsmarkt bis Linn, Hüls und Fischeln.";
 
-/** Geplante Adressen des Themas: 301 auf MAERKTE_PATH (proxy.ts). */
-export const ALTE_PFADE: readonly string[] = ["/ratgeber/weihnachtsmaerkte-krefeld-2026/"];
+/**
+ * Frühere bzw. zusammengeführte Adressen des Themas: 301 auf MAERKTE_PATH (proxy.ts),
+ * nicht in der Sitemap. Der Beitrag „Weihnachtszeit in Krefeld“ ist hier aufgegangen.
+ */
+export const ALTE_PFADE: readonly string[] = [
+  "/ratgeber/weihnachtsmaerkte-krefeld-2026/",
+  "/ratgeber/weihnachtszeit-in-krefeld/",
+];
 
 export interface Markt {
   /** Überschrift und Name im Schema. */
