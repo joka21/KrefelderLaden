@@ -43,7 +43,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const newestPost = latest.items[0]?.modified ?? undefined;
 
   const entries = new Map<string, MetadataRoute.Sitemap[number]>();
-  entries.set("/", { url: `${base}/` });
+  // Startseite zeigt die neuesten Beiträge und (in der Saison) die nächsten Märkte.
+  const startseite = [newestPost, STAND.iso, TROEDEL_STAND.iso].filter((wert): wert is string => Boolean(wert)).sort().at(-1);
+  entries.set("/", { url: `${base}/`, lastModified: startseite });
   if (latest.total > 0) {
     entries.set("/ratgeber/", { url: `${base}/ratgeber/`, lastModified: newestPost });
   }
