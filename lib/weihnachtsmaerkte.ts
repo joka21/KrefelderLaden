@@ -11,12 +11,16 @@
  * „15 bis 19 Uhr“ oder „ab 14 Uhr“ hat (siehe zeitspanne); sonst nur das Datum.
  */
 
+import { type FeedTermin, terminUid } from "./feeds/termine.ts";
 import { eventSchema, type EventStatus } from "./schema/event.ts";
 
 export const STAND = { iso: "2026-11-02", text: "2. November 2026" } as const;
 
 /** Hauptseite der Märkte; ihr Inhalt kommt von hier, nicht aus WordPress. */
 export const MAERKTE_PATH = "/weihnachtsmaerkte-in-krefeld/";
+/** Termin-Feeds ohne Endung: {MAERKTE_FEED}.json und {MAERKTE_FEED}.ics (app/daten). */
+export const MAERKTE_FEED = "/daten/weihnachtsmaerkte-krefeld";
+export const MAERKTE_FEED_TITEL = "Weihnachtsmärkte in Krefeld 2026";
 export const MAERKTE_H1 = "Weihnachtsmärkte in Krefeld 2026: alle Termine von Bruckhausen bis Fischeln";
 export const MAERKTE_TITEL = "Weihnachtsmärkte Krefeld 2026: alle Termine & Orte";
 export const MAERKTE_BESCHREIBUNG =
@@ -365,4 +369,31 @@ export function weihnachtsmaerkteSchema<T extends { "@graph": object[] }>(schema
       },
     ],
   };
+}
+
+/* Termin-Feeds (JSON, iCal) */
+
+/** Märkte, die noch laufen oder kommen; Zeiten wie im Schema, dazu die Terminzeile als Text. */
+export function maerkteFeedTermine(heute: string, pageUrl: string): FeedTermin[] {
+  return MAERKTE.filter(({ start, ende }) => (ende ?? start) >= heute).map((markt) => {
+    const ersterTag = zeitspanne(markt.zeitErsterTag);
+    const ende = markt.ende ? zeitspanne(markt.zeitLetzterTag).bis : ersterTag.bis;
+    return {
+      uid: terminUid(markt.start, markt.name),
+      name: markt.name,
+      datum: markt.start,
+      ...(ersterTag.von ? { beginn: ersterTag.von } : {}),
+      ...(markt.ende ? { bisDatum: markt.ende } : {}),
+      ...(ende ? { ende } : {}),
+      uhrzeit: markt.uhrzeit ?? wannText(markt),
+      ort: markt.ort.name,
+      strasse: markt.ort.strasse,
+      plz: markt.ort.plz,
+      veranstalter: markt.veranstalter,
+      quelle: markt.website,
+      geprueftAm: STAND.iso,
+      status: markt.status === "abgesagt" ? "abgesagt" : markt.status === "verschoben" ? "vorläufig" : "bestätigt",
+      url: `${pageUrl}#${marktAnker(markt)}`,
+    };
+  });
 }

@@ -5,7 +5,7 @@ import { cronSecret, klsSite, revalidateSecret, siteUrl } from "@/lib/env";
 import { meldeIndexNow } from "@/lib/indexnow";
 import { TAGS } from "@/lib/kls";
 import { secretMatches } from "@/lib/secrets";
-import { TAEGLICHE_PFADE } from "@/lib/taeglich";
+import { TAEGLICHE_FEEDS, TAEGLICHE_PFADE } from "@/lib/taeglich";
 
 /**
  * POST /api/revalidate – Revalidation durch WordPress (API-Vertrag, Abschnitt
@@ -117,17 +117,20 @@ export async function GET(request: NextRequest) {
   for (const path of TAEGLICHE_PFADE) {
     revalidatePage(path);
   }
+  for (const feed of TAEGLICHE_FEEDS) {
+    revalidatePath(feed);
+  }
 
   // Nach der Antwort jede Seite einmal abrufen: Der Abruf stößt die Neuerzeugung an.
   const origin = request.nextUrl.origin;
   after(async () => {
     await Promise.all(
-      TAEGLICHE_PFADE.map((path) =>
+      [...TAEGLICHE_PFADE, ...TAEGLICHE_FEEDS].map((path) =>
         fetch(origin + path, { cache: "no-store" }).catch((error) => console.error(`Cron ${path}:`, error)),
       ),
     );
     await meldeIndexNow(siteUrl(), TAEGLICHE_PFADE);
   });
 
-  return Response.json({ revalidated: true, paths: TAEGLICHE_PFADE });
+  return Response.json({ revalidated: true, paths: [...TAEGLICHE_PFADE, ...TAEGLICHE_FEEDS] });
 }

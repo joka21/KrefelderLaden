@@ -19,6 +19,7 @@
  * einen Wert fehlt der Abschnitt „Für Verkäufer“ ganz.
  */
 
+import { type FeedTermin, terminUid } from "./feeds/termine.ts";
 import verkaeuferZeilen from "./troedelmaerkte-verkaeufer.json" with { type: "json" };
 import zeilen from "./troedelmaerkte-daten.json" with { type: "json" };
 
@@ -62,6 +63,9 @@ export const VERKAEUFER_ZEILEN: readonly VerkaeuferZeile[] = verkaeuferZeilen;
 export const GELAENDE = ["Halle", "Freigelände", "Halle und Freigelände"] as const;
 
 export const TROEDEL_PATH = "/troedelmarkt-krefeld/";
+/** Termin-Feeds ohne Endung: {TROEDEL_FEED}.json und {TROEDEL_FEED}.ics (app/daten). */
+export const TROEDEL_FEED = "/daten/troedelmarkt-krefeld";
+export const TROEDEL_FEED_TITEL = "Trödelmärkte und Flohmärkte in Krefeld";
 export const TROEDEL_H1 = "Trödelmarkt Krefeld: alle Termine 2026/2027";
 export const TROEDEL_TITEL = "Trödelmarkt Krefeld 2026/2027: alle Termine & Flohmärkte";
 export const TROEDEL_BESCHREIBUNG =
@@ -526,4 +530,29 @@ export function troedelmaerkteSchema<T extends { "@graph": object[] }>(schema: T
       },
     ],
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Termin-Feeds (JSON, iCal)                                           */
+/* ------------------------------------------------------------------ */
+
+/** Alle kommenden Termine wie auf der Seite; Regeltermine als „vorläufig“. */
+export function troedelFeedTermine(heute: string, pageUrl: string): FeedTermin[] {
+  return kommendeTermine(heute).map((termin) => ({
+    uid: terminUid(termin.datum, termin.markt, termin.beginn),
+    name: termin.markt,
+    datum: termin.datum,
+    ...(termin.beginn ? { beginn: termin.beginn } : {}),
+    ...(termin.ende && termin.art !== "uhrzeitOffen" ? { ende: termin.ende } : {}),
+    ort: termin.ort,
+    strasse: termin.strasse,
+    plz: termin.plz,
+    veranstalter: termin.veranstalter,
+    quelle: termin.quelle,
+    geprueftAm: termin.geprueftAm,
+    ...(termin.art === "regeltermin" ? { hinweis: REGELTERMIN_HINWEIS } : {}),
+    ...(termin.art === "uhrzeitOffen" ? { hinweis: "Ende noch offen" } : {}),
+    status: termin.art === "regeltermin" ? "vorläufig" : "bestätigt",
+    url: pageUrl,
+  }));
 }

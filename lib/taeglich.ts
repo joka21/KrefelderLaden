@@ -1,5 +1,5 @@
-import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
-import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
+import { TROEDEL_FEED, TROEDEL_PATH } from "@/lib/troedelmaerkte";
+import { MAERKTE_FEED, MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 /**
  * Seiten, deren Inhalt vom heutigen Datum (Europe/Berlin) abhängt: „heute“,
@@ -9,3 +9,6 @@ import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
  * oder Feeds hier eintragen.
  */
 export const TAEGLICHE_PFADE: readonly string[] = ["/", TROEDEL_PATH, MAERKTE_PATH];
+
+/** Termin-Feeds; erneuert wie die Seiten, aber nicht an IndexNow gemeldet (keine Seiten). */
+export const TAEGLICHE_FEEDS: readonly string[] = [TROEDEL_FEED, MAERKTE_FEED].flatMap((feed) => [`${feed}.json`, `${feed}.ics`]);

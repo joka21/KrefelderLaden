@@ -11,5 +11,6 @@ export const STADT = {
 
 export const MARKE = {
   name: "Krefelder Laden",
+  domain: "krefelder-laden.de",
   instagram: "https://www.instagram.com/krefelderladen/",
 } as const;
