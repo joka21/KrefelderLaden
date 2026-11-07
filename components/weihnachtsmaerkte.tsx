@@ -106,7 +106,8 @@ export async function WeihnachtsmaerkteSeite() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-4 pt-10 sm:px-8 sm:pt-14">
-      <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH, siteUrl() + ottoWeihnachten.src)} />
+      {/* Bild über den festen Pfad in public/, nicht über die gehashte Build-URL (die ändert sich je Deploy). */}
+      <JsonLd data={weihnachtsmaerkteSchema(schema, siteUrl() + MAERKTE_PATH, `${siteUrl()}/images/otto-weihnachten.webp`)} />
       <h1 className={GRUEN_H1}>{MAERKTE_H1}</h1>
       {/* Otto rechts, der Text fließt links daneben: 160 px auf dem Handy, 200 px ab md. */}
       <div className="mt-6 flow-root max-w-3xl text-lg leading-relaxed hyphens-auto md:hyphens-none">
