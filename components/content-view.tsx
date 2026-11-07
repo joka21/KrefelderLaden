@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { formatDate } from "@/components/format";
+import { altText } from "@/lib/alt";
 import { prepareContent } from "@/lib/html";
 import type { KlsContent } from "@/lib/kls";
 import { TEXTS } from "@/lib/texts";
@@ -24,7 +25,7 @@ export function ContentView({ content }: { content: KlsContent }) {
       {image ? (
         <Image
           src={relativeUpload(image.url)}
-          alt={image.alt}
+          alt={altText(image.alt, content.title)}
           width={image.width ?? 1600}
           height={image.height ?? 900}
           sizes="(min-width: 48rem) 45rem, 100vw"
@@ -36,7 +37,7 @@ export function ContentView({ content }: { content: KlsContent }) {
       {content.password_protected ? (
         <p>{TEXTS.passwordProtected}</p>
       ) : (
-        <div className="wp-content" dangerouslySetInnerHTML={{ __html: prepareContent(content.content) }} />
+        <div className="wp-content" dangerouslySetInnerHTML={{ __html: prepareContent(content.content, content.title) }} />
       )}
     </article>
   );

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { formatDate } from "@/components/format";
+import { altText } from "@/lib/alt";
 import type { KlsPostItem } from "@/lib/kls";
 import { relativeUpload } from "@/lib/urls";
 
@@ -20,7 +21,7 @@ export function PostList({ posts, headingLevel = 3 }: { posts: KlsPostItem[]; he
             {post.featured_image ? (
               <Image
                 src={relativeUpload(post.featured_image.url)}
-                alt={post.featured_image.alt}
+                alt={altText(post.featured_image.alt, post.title)}
                 width={post.featured_image.width ?? 1200}
                 height={post.featured_image.height ?? 675}
                 sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 100vw"

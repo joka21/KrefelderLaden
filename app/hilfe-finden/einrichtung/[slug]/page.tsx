@@ -172,7 +172,7 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe-find
         </dl>
 
         {hatSichtbarenInhalt(content.content) ? (
-          <div className="wp-content mt-10" dangerouslySetInnerHTML={{ __html: prepareContent(content.content) }} />
+          <div className="wp-content mt-10" dangerouslySetInnerHTML={{ __html: prepareContent(content.content, einrichtung.name) }} />
         ) : null}
 
         {naehe.length > 0 ? (

@@ -2,6 +2,7 @@ import "server-only";
 
 import { load } from "cheerio";
 
+import { altText } from "@/lib/alt";
 import { relativeSrcset, relativeUpload } from "@/lib/urls";
 
 /**
@@ -11,11 +12,11 @@ import { relativeSrcset, relativeUpload } from "@/lib/urls";
  * - absolute Upload-URLs der WordPress-Domain (src, srcset, Links auf Dateien)
  *   werden zu relativen Pfaden /wp-content/uploads/…
  * - Bilder erhalten loading="lazy" und decoding="async"; width und height
- *   bleiben, soweit geliefert, erhalten
+ *   bleiben, soweit geliefert, erhalten; ohne Alt-Text gilt altText(titel)
  * - Überschriften der Ebene 1 im Inhalt werden zu Ebene 2 (die Seite hat genau
  *   eine H1: den Titel)
  */
-export function prepareContent(html: string): string {
+export function prepareContent(html: string, titel?: string): string {
   if (!html.trim()) {
     return "";
   }
@@ -31,6 +32,9 @@ export function prepareContent(html: string): string {
     if (srcset) img.attr("srcset", relativeSrcset(srcset));
     img.attr("loading", "lazy");
     img.attr("decoding", "async");
+    if (titel !== undefined && !img.attr("alt")?.trim()) {
+      img.attr("alt", altText(null, titel));
+    }
   });
 
   $("source[srcset]").each((_, element) => {
