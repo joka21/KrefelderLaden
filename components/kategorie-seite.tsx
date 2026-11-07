@@ -51,7 +51,7 @@ export async function loadKategorie(slug: string, page: number): Promise<Kategor
   return daten;
 }
 
-/** Metadaten einer Kategorieseite; leere Kategorien bekommen noindex. */
+/** Metadaten einer Kategorieseite; leere Kategorien bekommen noindex, außer mit auchLeerIndexieren. */
 export async function kategorieMetadata(slug: string, page: number): Promise<Metadata> {
   const [settings, daten] = await Promise.all([getSettings(), getKategorieSeite(slug, page)]);
   if (!daten) {
@@ -65,7 +65,7 @@ export async function kategorieMetadata(slug: string, page: number): Promise<Met
       kategorieBeschreibung(daten.kategorie) ||
       `${name}: Beiträge aus Krefeld von Krefelder Laden.`,
     path: pageHref(kategoriePath(slug), page),
-    noindex: daten.total === 0,
+    noindex: daten.total === 0 && !findKategorie(slug)?.auchLeerIndexieren,
   });
 }
 
@@ -78,7 +78,7 @@ export function KategorieBeitraege({
   headingLevel: 2 | 3;
 }) {
   if (daten.total === 0) {
-    return <p className="text-lg">{KATEGORIE_TEXTS.empty}</p>;
+    return findKategorie(daten.kategorie.slug)?.auchLeerIndexieren ? null : <p className="text-lg">{KATEGORIE_TEXTS.empty}</p>;
   }
   return (
     <>

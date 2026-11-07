@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { siteUrl } from "@/lib/env";
 import { BEREICHE, BEZIRKE, bereichPath, bezirkPath, getEinrichtungen, HILFE_PATH, type Einrichtung } from "@/lib/hilfe";
-import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
+import { findKategorie, getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getPaths, getPosts } from "@/lib/kls";
 import { SECOND_HAND_PATH, STAND as SECOND_HAND_STAND } from "@/lib/second-hand";
 import { STAND as TROEDEL_STAND, TROEDEL_PATH } from "@/lib/troedelmaerkte";
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.set("/ratgeber/", { url: `${base}/ratgeber/`, lastModified: newestPost });
   }
   for (const daten of kategorien) {
-    if (daten && daten.total > 0) {
+    if (daten && (daten.total > 0 || findKategorie(daten.kategorie.slug)?.auchLeerIndexieren)) {
       const path = kategoriePath(daten.kategorie.slug);
       entries.set(path, { url: base + path, lastModified: daten.posts[0]?.modified ?? undefined });
     }

@@ -27,6 +27,10 @@ import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
  *
  * leerWeiterleitung: Solange die Kategorie keinen Beitrag hat, leitet /{slug}/
  * dauerhaft dorthin weiter (308); mit dem ersten Beitrag erscheint die Seite wieder.
+ *
+ * auchLeerIndexieren: Die Seite trägt sich selbst (Einleitung, Link) und bleibt
+ * auch ohne Beitrag indexiert und in der Sitemap; der Hinweis „Hier erscheinen
+ * bald …“ entfällt dann.
  */
 export interface Kategorie {
   slug: string;
@@ -42,6 +46,7 @@ export interface Kategorie {
   image?: { src: StaticImageData; alt: string };
   link?: { text: string; path: string };
   leerWeiterleitung?: string;
+  auchLeerIndexieren?: boolean;
 }
 
 export const KATEGORIEN: readonly Kategorie[] = [
@@ -53,6 +58,7 @@ export const KATEGORIEN: readonly Kategorie[] = [
     heading: "Weihnachten in Krefeld",
     metaTitle: "Weihnachten in Krefeld 2026: Märkte, Geschenke, Termine",
     titelOhneMarke: true,
+    auchLeerIndexieren: true,
     intro: [
       "Wann und wo ist in Krefeld Weihnachtsmarkt? Otto hat alle Märkte 2026 für dich zusammengetragen, mit Terminen und Orten von Bruckhausen bis Fischeln.",
     ],
@@ -119,7 +125,7 @@ export function isKategorie(slug: string): boolean {
 export interface KategorieDaten {
   kategorie: WpCategory;
   posts: KlsPostItem[];
-  /** Beiträge insgesamt; 0 = leere Kategorie (noindex, nicht in der Sitemap). */
+  /** Beiträge insgesamt; 0 = leere Kategorie (noindex, nicht in der Sitemap; außer auchLeerIndexieren). */
   total: number;
   page: number;
   totalPages: number;
