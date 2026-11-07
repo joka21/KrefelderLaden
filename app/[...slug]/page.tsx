@@ -7,12 +7,16 @@ import { KategorieSeite, kategorieMetadata } from "@/components/kategorie-seite"
 import { SecondHandSeite, secondHandMetadata } from "@/components/second-hand";
 import { TroedelmaerkteSeite, troedelmaerkteMetadata } from "@/components/troedelmaerkte";
 import { WeihnachtsmaerkteSeite, weihnachtsmaerkteMetadata } from "@/components/weihnachtsmaerkte";
+import { decodeEntities } from "@/lib/entities";
+import { siteUrl } from "@/lib/env";
 import { HILFE_KATEGORIE, isKategorie, KATEGORIEN, kategoriePath } from "@/lib/kategorien";
 import { getContent, getPaths, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
+import { rezeptSchema } from "@/lib/schema/rezept";
 import { SECOND_HAND_PATH } from "@/lib/second-hand";
 import { contentMetadata, contentSchema } from "@/lib/seo";
 import { TROEDEL_PATH } from "@/lib/troedelmaerkte";
+import { absoluteUpload } from "@/lib/urls";
 import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
@@ -73,6 +77,25 @@ export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
     console.error("generateStaticParams:", error);
     return kategorien;
   }
+}
+
+/** Schema des Inhalts; Beiträge mit Zutaten und Zubereitung bekommen zusätzlich ein Recipe. */
+function schemaMitRezept(content: KlsContent, settings: Awaited<ReturnType<typeof getSettings>>) {
+  const schema = contentSchema(content, settings);
+  if (content.type !== "post" || content.password_protected) {
+    return schema;
+  }
+  const rezept = rezeptSchema({
+    pageUrl: siteUrl() + content.path,
+    home: `${siteUrl()}/`,
+    name: decodeEntities(content.title),
+    html: content.content,
+    bild: content.featured_image ? absoluteUpload(content.featured_image.url) : null,
+    beschreibung: content.seo.description || null,
+    datum: content.date,
+    geaendert: content.modified,
+  });
+  return rezept ? { ...schema, "@graph": [...schema["@graph"], rezept] } : schema;
 }
 
 /** Inhalt zum Pfad: im Draft Mode die Vorschau, sonst der veröffentlichte Inhalt. */
@@ -140,7 +163,7 @@ export default async function ContentPage({ params }: PageProps<"/[...slug]">) {
 
   return (
     <>
-      <JsonLd data={contentSchema(content, settings)} />
+      <JsonLd data={schemaMitRezept(content, settings)} />
       <ContentView content={content} />
     </>
   );
