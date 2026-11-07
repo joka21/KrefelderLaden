@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
+import { TerminDaten } from "@/components/termin-daten";
 import { siteUrl } from "@/lib/env";
 import { getSettings } from "@/lib/kls";
 import { SECOND_HAND_PATH } from "@/lib/second-hand";
@@ -22,6 +23,7 @@ import {
   REGELTERMIN_HINWEIS,
   STAND,
   TROEDEL_BESCHREIBUNG,
+  TROEDEL_FEED,
   TROEDEL_H1,
   TROEDEL_PATH,
   TROEDEL_TITEL,
@@ -284,6 +286,8 @@ export async function TroedelmaerkteSeite() {
           </ul>
         </section>
       ) : null}
+
+      <TerminDaten feed={TROEDEL_FEED} />
 
       <aside className="mt-10 rounded-lg border border-line bg-wash p-5 text-lg leading-relaxed">
         <p>

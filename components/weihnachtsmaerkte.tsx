@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import ottoWeihnachten from "@/public/images/otto-weihnachten.webp";
 import { JsonLd } from "@/components/json-ld";
+import { TerminDaten } from "@/components/termin-daten";
 import { siteUrl } from "@/lib/env";
 import { getPosts, getSettings } from "@/lib/kls";
 import { defaultMetadata, defaultSchema } from "@/lib/seo";
@@ -14,6 +15,7 @@ import {
   MAERKTE,
   marktAnker,
   MAERKTE_BESCHREIBUNG,
+  MAERKTE_FEED,
   MAERKTE_H1,
   MAERKTE_PATH,
   MAERKTE_TITEL,
@@ -176,6 +178,8 @@ export async function WeihnachtsmaerkteSeite() {
           ))}
         </div>
       </section>
+
+      <TerminDaten feed={MAERKTE_FEED} />
 
       <section className="mt-10">
         <h2 className={GRUEN_H2}>Gut zu wissen</h2>
