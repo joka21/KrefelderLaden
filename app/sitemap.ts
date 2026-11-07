@@ -69,8 +69,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.set(bezirkPath(bezirk.slug), { url: base + bezirkPath(bezirk.slug), lastModified: newest(items) });
     }
   }
-  // Detailseiten auch aus /posts, falls /paths sie einmal nicht enthält.
-  for (const item of hilfe) {
+  // Detailseiten auch aus /posts, falls /paths sie einmal nicht enthält; ohne Einträge mit noindex.
+  for (const item of hilfe.filter(({ noindex }) => !noindex)) {
     entries.set(item.path, { url: base + encodeURI(item.path), lastModified: item.modified ?? undefined });
   }
   for (const item of paths) {
@@ -79,6 +79,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Weitergeleitete Adressen (proxy.ts) gehören nicht in die Sitemap, auch wenn WordPress sie noch liefert.
   for (const path of ALTE_PFADE) {
     entries.delete(path);
+  }
+  for (const item of hilfe.filter(({ noindex }) => noindex)) {
+    entries.delete(item.path);
   }
   // Inhalt kommt aus dem Frontend, daher unabhängig von /paths und mit eigenem Stand.
   entries.set(MAERKTE_PATH, { url: base + MAERKTE_PATH, lastModified: STAND.iso });

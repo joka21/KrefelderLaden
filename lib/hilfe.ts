@@ -130,8 +130,16 @@ export interface Einrichtung {
   fuerWen: string;
   telefon: string;
   email: string;
+  /** true = noindex (Feld kl_noindex), außer bei IMMER_INDEXIEREN. */
+  noindex: boolean;
   modified: string | null;
 }
+
+/**
+ * Einrichtungen, die schon ranken und immer indexiert bleiben, auch wenn in
+ * WordPress kl_noindex gesetzt wird (Slug der Detailseite).
+ */
+export const IMMER_INDEXIEREN: readonly string[] = ["jugendeinrichtung-stahlnetz", "max-peltner-haus-diakonie-krefeld-viersen"];
 
 /** Link auf die Karte (OpenStreetMap) aus den Koordinaten; "" ohne gültige Koordinaten. */
 export function osmLink({ lat, lon }: Pick<Einrichtung, "lat" | "lon">): string {
@@ -141,6 +149,8 @@ export function osmLink({ lat, lon }: Pick<Einrichtung, "lat" | "lon">): string 
   return `https://www.openstreetmap.org/?mlat=${breite}&mlon=${laenge}#map=18/${breite}/${laenge}`;
 }
 
+/** Slug aus dem Pfad /hilfe-finden/einrichtung/{slug}/. */
+const slugAusPfad = (path: string) => path.split("/").filter(Boolean).pop() ?? "";
 
 function begriff(term: KlsTerm): Begriff {
   return { slug: term.slug, name: decodeEntities(term.name) };
@@ -199,6 +209,7 @@ function toEinrichtung(
     fuerWen: fields.kl_fuer_wen?.trim() ?? "",
     telefon: fields.kl_telefon?.trim() ?? "",
     email: fields.kl_email?.trim() ?? "",
+    noindex: fields.kl_noindex === true && !IMMER_INDEXIEREN.includes(slugAusPfad(base.path)),
     modified: base.modified,
   };
 }

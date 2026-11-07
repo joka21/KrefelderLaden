@@ -110,6 +110,8 @@ export interface KlsAnbieter {
   /** Optional (KL Core, noch nicht geliefert): Telefon und E-Mail der Einrichtung. */
   kl_telefon?: string;
   kl_email?: string;
+  /** Optional (KL Core, noch nicht geliefert): true = Detailseite auf noindex. Standard: indexieren. */
+  kl_noindex?: boolean;
 }
 
 export interface KlsContent {

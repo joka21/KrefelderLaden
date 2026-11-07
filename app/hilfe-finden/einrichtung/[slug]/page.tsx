@@ -25,7 +25,7 @@ import { prepareContent } from "@/lib/html";
 import { hatSichtbarenInhalt } from "@/lib/html-inhalt";
 import { getContent, getSettings, type KlsContent } from "@/lib/kls";
 import { getDraftContent } from "@/lib/preview";
-import { contentMetadata, contentSchema } from "@/lib/seo";
+import { contentMetadata, contentSchema, robots } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -88,6 +88,8 @@ export async function generateMetadata({ params }: PageProps<"/hilfe-finden/einr
   // Title (höchstens 60 Zeichen, nie gleich der H1) setzt contentMetadata.
   return {
     ...metadata,
+    // noindex je Eintrag (kl_noindex); Standard und IMMER_INDEXIEREN: wie aus der API.
+    ...(einrichtung.noindex ? { robots: robots("noindex") } : {}),
     description,
     openGraph: { ...metadata.openGraph, description },
     twitter: { ...metadata.twitter, description },
