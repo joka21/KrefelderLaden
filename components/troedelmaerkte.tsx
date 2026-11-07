@@ -211,7 +211,8 @@ export async function TroedelmaerkteSeite() {
         {kommende.length > 0 ? (
           nachMonat(kommende).map(({ monat, termine }) => (
             <div key={monat} className="mt-6">
-              <h3 className="mb-3 text-xl">{monat}</h3>
+              {/* Monat als Zwischenzeile ohne Überschrift: hält die Gliederung H1 → H2 → H3 schlank. */}
+              <p className="mb-3 font-heading text-xl font-bold">{monat}</p>
               <TerminTabelle termine={termine} />
             </div>
           ))
