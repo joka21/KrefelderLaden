@@ -12,6 +12,8 @@
  * - „Regeltermin, einzeln prüfen“ → mit Hinweis, nicht im JSON-LD
  * - „Termin im Portal – Uhrzeit prüfen“ → „ab … Uhr, Ende noch offen“, nicht im JSON-LD
  * - sonst mit „gelistet“ oder „bestätigt“ → normal, im JSON-LD
+ * - „Abgesagt“ bzw. „Verschoben“ → mit Hinweis, im JSON-LD als EventCancelled
+ *   bzw. EventPostponed, nicht in der Antwort oben
  * Die Spalte „hinweise“ enthält Notizen der Recherche und wird nicht angezeigt.
  *
  * Angaben für Verkäufer: data/troedelmaerkte_verkaeufer.csv, eine Zeile je Markt
@@ -20,6 +22,7 @@
  */
 
 import { type FeedTermin, terminUid } from "./feeds/termine.ts";
+import { eventSchema, type EventStatus, zeitMitOffset } from "./schema/event.ts";
 import verkaeuferZeilen from "./troedelmaerkte-verkaeufer.json" with { type: "json" };
 import zeilen from "./troedelmaerkte-daten.json" with { type: "json" };
 
@@ -80,6 +83,8 @@ export const STATUS = {
   uhrzeitOffen: "Termin im Portal – Uhrzeit prüfen",
   konflikt: "Quellenkonflikt – bitte prüfen",
   ortGenannt: "Ort genannt – Veranstaltung prüfen",
+  abgesagt: "Abgesagt",
+  verschoben: "Verschoben",
 } as const;
 
 export const REGELTERMIN_HINWEIS = "Regeltermin – bitte vorher prüfen";
@@ -110,6 +115,10 @@ export interface Termin {
   quelle: string;
   /** Tag der Prüfung (recherchiert_am), JJJJ-MM-TT. */
   geprueftAm: string;
+  /** Eigene Seite der Veranstaltung (veranstaltungs_url), im Schema als sameAs. */
+  website: string;
+  /** Nur bei Absage oder Verschiebung (Status-Spalte). */
+  absage?: EventStatus;
   art: Art;
 }
 
@@ -124,6 +133,7 @@ export interface RegelMarkt {
 }
 
 function art(status: string): Art | null {
+  if (status === STATUS.abgesagt || status === STATUS.verschoben) return "normal";
   if (status === STATUS.regeltermin) return "regeltermin";
   if (status === STATUS.uhrzeitOffen) return "uhrzeitOffen";
   if (status === STATUS.konflikt) return null;
@@ -155,6 +165,9 @@ export const TERMINE: readonly Termin[] = ZEILEN.flatMap((zeile, index) => {
       url: url(zeile),
       quelle: zeile.quelle_url,
       geprueftAm: zeile.recherchiert_am,
+      website: zeile.veranstaltungs_url,
+      ...(zeile.status === STATUS.abgesagt ? { absage: "abgesagt" as const } : {}),
+      ...(zeile.status === STATUS.verschoben ? { absage: "verschoben" as const } : {}),
       art: termin,
     },
   ];
@@ -342,7 +355,8 @@ export const antwortZeile = (termin: Termin) =>
  * Märkten heute steht der Satz mit Doppelpunkt da, die Märkte in `liste`.
  */
 export function antwortZuerst(heute: string): { satz: string; liste: Termin[] } {
-  const kommende = kommendeTermine(heute);
+  // Abgesagte und verschobene Termine stehen in der Liste, aber nicht in der Antwort.
+  const kommende = kommendeTermine(heute).filter(({ absage }) => !absage);
   const heutige = kommende.filter(({ datum }) => datum === heute);
   const tag = datumLang(heute);
 
@@ -471,39 +485,23 @@ export function fragen(heute: string): { frage: string; antwort: string }[] {
 /* JSON-LD                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Zeitpunkt mit Offset von Europe/Berlin, z. B. 2026-11-07T07:00:00+01:00. */
-export function berlinZeit(datum: string, hhmm: string): string {
-  const name = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", timeZoneName: "longOffset" })
-    .formatToParts(new Date(`${datum}T${hhmm}:00Z`))
-    .find(({ type }) => type === "timeZoneName")?.value;
-  const offset = name?.replace("GMT", "") || "+00:00";
-  return `${datum}T${hhmm}:00${offset}`;
-}
+/** Zeitpunkt mit Offset von Europe/Berlin, z. B. 2026-11-07T07:00:00+01:00 (lib/schema/event.ts). */
+export const berlinZeit = (datum: string, hhmm: string) => zeitMitOffset(datum, hhmm);
 
 function terminSchema(termin: Termin, pageUrl: string) {
-  return {
-    "@type": "Event",
-    "@id": `${pageUrl}#termin-${termin.zeile}`,
+  return eventSchema({
+    id: `${pageUrl}#termin-${termin.zeile}`,
     name: termin.markt,
-    startDate: termin.beginn ? berlinZeit(termin.datum, termin.beginn) : termin.datum,
-    ...(termin.beginn && termin.ende ? { endDate: berlinZeit(termin.datum, termin.ende) } : {}),
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    datum: termin.datum,
+    beginn: termin.beginn || undefined,
+    ende: termin.beginn && termin.ende ? termin.ende : undefined,
+    status: termin.absage,
     url: pageUrl,
-    location: {
-      "@type": "Place",
-      name: termin.ort,
-      address: {
-        "@type": "PostalAddress",
-        ...(termin.strasse ? { streetAddress: termin.strasse } : {}),
-        ...(termin.plz ? { postalCode: termin.plz } : {}),
-        addressLocality: "Krefeld",
-        addressCountry: "DE",
-      },
-    },
-    ...(termin.veranstalter ? { organizer: { "@type": "Organization", name: termin.veranstalter } } : {}),
-    ...(termin.eintritt === "frei" ? { isAccessibleForFree: true } : {}),
-  };
+    website: termin.website || undefined,
+    ort: { name: termin.ort, strasse: termin.strasse, plz: termin.plz },
+    veranstalter: termin.veranstalter ? { name: termin.veranstalter } : undefined,
+    eintrittFrei: termin.eintritt === "frei",
+  });
 }
 
 /** Ergänzt das Schema der Seite um dateModified, je kommendem Termin (nur „normal“) ein Event und die FAQPage. */
@@ -552,7 +550,8 @@ export function troedelFeedTermine(heute: string, pageUrl: string): FeedTermin[]
     geprueftAm: termin.geprueftAm,
     ...(termin.art === "regeltermin" ? { hinweis: REGELTERMIN_HINWEIS } : {}),
     ...(termin.art === "uhrzeitOffen" ? { hinweis: "Ende noch offen" } : {}),
-    status: termin.art === "regeltermin" ? "vorläufig" : "bestätigt",
+    status: termin.absage === "abgesagt" ? "abgesagt" : termin.art === "regeltermin" || termin.absage ? "vorläufig" : "bestätigt",
+    ...(termin.absage === "verschoben" ? { hinweis: "Verschoben" } : {}),
     url: pageUrl,
   }));
 }

@@ -43,6 +43,9 @@ const TEXT_LINK = "text-green underline underline-offset-4 hover:text-green-dark
 const ZELLE = "sm:table-cell sm:border sm:border-line sm:px-3 sm:py-2";
 
 function Hinweis({ termin }: { termin: Termin }) {
+  if (termin.absage) {
+    return <span className="mt-1 block text-sm font-bold text-berry">{termin.absage === "abgesagt" ? "Abgesagt" : "Verschoben"}</span>;
+  }
   return termin.art === "regeltermin" ? (
     <span className="mt-1 block text-sm font-bold text-muted">{REGELTERMIN_HINWEIS}</span>
   ) : null;
