@@ -24,7 +24,7 @@ export const HILFE_TEXTS = {
   heading: "Hilfe finden in Krefeld",
   metaTitle: "Hilfe finden in Krefeld",
   intro:
-    "Hier findet ihr Pflegeheime, Beratungsstellen, Treffpunkte für Kinder und Jugendliche und soziale Dienste in Krefeld – sortiert nach Thema und Stadtbezirk. Die Angaben stammen von der Stadt Krefeld und werden regelmäßig abgeglichen.",
+    "Hier findest du Pflegeheime, Beratungsstellen, Treffpunkte für Kinder und Jugendliche und soziale Dienste in Krefeld – sortiert nach Thema und Stadtbezirk. Die Angaben stammen von der Stadt Krefeld und werden regelmäßig abgeglichen.",
   einrichtungenHeading: "Einrichtungen",
   bereicheHeading: "Nach Thema",
   bezirkeHeading: "Nach Stadtbezirk",
@@ -46,7 +46,7 @@ export const BEREICHE: readonly Bereich[] = [
     label: "Pflege & Senioren",
     metaTitle: "Pflegeheime, Tagespflege & Hospiz in Krefeld",
     intro:
-      "Pflegeheime, Tagespflege, Pflege-Wohngemeinschaften und das Hospiz in Krefeld. Freie Plätze und Kosten klärt ihr bitte direkt mit der Einrichtung.",
+      "Pflegeheime, Tagespflege, Pflege-Wohngemeinschaften und das Hospiz in Krefeld. Freie Plätze und Kosten klärst du am besten direkt mit der Einrichtung.",
   },
   {
     slug: "kinder-jugend",
@@ -65,7 +65,7 @@ export const BEREICHE: readonly Bereich[] = [
     label: "Beratung",
     metaTitle: "Beratungsstellen in Krefeld",
     intro:
-      "Beratungsstellen in Krefeld – von Familien- und Schuldnerberatung bis zur Krisenhilfe. Termine vereinbart ihr direkt mit der Stelle.",
+      "Beratungsstellen in Krefeld – von Familien- und Schuldnerberatung bis zur Krisenhilfe. Termine vereinbarst du direkt mit der Stelle.",
   },
 ];
 

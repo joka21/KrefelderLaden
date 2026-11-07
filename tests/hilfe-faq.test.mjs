@@ -9,13 +9,13 @@ import { FAQ, faqText } from "../lib/hilfe-faq.ts";
 const VORLAGE = {
   uebersicht: [
     ["Kostet die Hilfe etwas?", "Die meisten Beratungsstellen der Wohlfahrtsverbände und der Stadt beraten kostenlos. Bei Pflegeheimen, Tagespflege und Pflege-Wohngemeinschaften fallen Kosten an – wie viel davon die Pflegekasse übernimmt, hängt vom Pflegegrad ab."],
-    ["Ich weiß nicht, welche Stelle die richtige ist. Wo fange ich an?", "Sucht euch die Einrichtung in eurem Stadtbezirk aus dem passenden Bereich. Wenn ihr unsicher seid: Allgemeine Sozialberatung bieten zum Beispiel die Caritas, die Diakonie, der SKM und der SkF. Dort hilft man euch auch weiter, wenn ihr woanders besser aufgehoben seid."],
-    ["Woher stammen die Angaben?", "Alle Einrichtungen stammen aus den offenen Daten der Stadt Krefeld. Wir gleichen sie regelmäßig ab. Öffnungszeiten und Termine erfahrt ihr am besten direkt bei der Einrichtung."],
+    ["Ich weiß nicht, welche Stelle die richtige ist. Wo fange ich an?", "Such dir die Einrichtung in deinem Stadtbezirk aus dem passenden Bereich. Wenn du unsicher bist: Allgemeine Sozialberatung bieten zum Beispiel die Caritas, die Diakonie, der SKM und der SkF. Dort hilft man dir auch weiter, wenn du woanders besser aufgehoben bist."],
+    ["Woher stammen die Angaben?", "Alle Einrichtungen stammen aus den offenen Daten der Stadt Krefeld. Wir gleichen sie regelmäßig ab. Öffnungszeiten und Termine erfährst du am besten direkt bei der Einrichtung."],
   ],
   "pflege-senioren": [
-    ["Wo bekomme ich eine unabhängige Pflegeberatung?", "Wer Leistungen der Pflegeversicherung bekommt oder beantragt, hat Anspruch auf eine kostenlose Pflegeberatung. In Krefeld helfen euch der Pflegestützpunkt und die Pflegeberatung und Altenhilfe der Stadt. Sie beraten auch Angehörige."],
+    ["Wo bekomme ich eine unabhängige Pflegeberatung?", "Wer Leistungen der Pflegeversicherung bekommt oder beantragt, hat Anspruch auf eine kostenlose Pflegeberatung. In Krefeld helfen dir der Pflegestützpunkt und die Pflegeberatung und Altenhilfe der Stadt. Sie beraten auch Angehörige."],
     ["Was ist der Unterschied zwischen Pflegeheim, Tagespflege und Pflege-WG?", "Im Pflegeheim lebt man dauerhaft mit Pflege rund um die Uhr. In der Tagespflege wird man tagsüber betreut und ist abends wieder zu Hause – das entlastet pflegende Angehörige. In einer Pflege-Wohngemeinschaft leben wenige Menschen zusammen und werden von einem Pflegedienst versorgt; einige sind auf Intensivpflege oder Demenz ausgerichtet."],
-    ["Was ist, wenn Rente und Pflegekasse für das Pflegeheim nicht reichen?", "Dann könnt ihr beim Sozialamt „Hilfe zur Pflege“ beantragen. Die Pflegeberatung hilft euch beim Antrag."],
+    ["Was ist, wenn Rente und Pflegekasse für das Pflegeheim nicht reichen?", "Dann kannst du beim Sozialamt „Hilfe zur Pflege“ beantragen. Die Pflegeberatung hilft dir beim Antrag."],
     ["Kostet ein Hospiz etwas?", "Für die Gäste eines stationären Hospizes entstehen keine Kosten für den Aufenthalt. Die Kranken- und Pflegekasse tragen den Großteil, den Rest finanziert das Hospiz über Spenden."],
   ],
   beratung: [
@@ -28,7 +28,7 @@ const VORLAGE = {
     ["Was sind Wohneinrichtungen für Kinder und Jugendliche?", "Kinder und Jugendliche, die vorübergehend oder dauerhaft nicht in ihrer Familie leben können, finden dort ein Zuhause. Ein Platz wird in der Regel über das Jugendamt vermittelt. Ansprechpartner ist der Fachbereich Jugendhilfe der Stadt Krefeld."],
   ],
   "soziale-dienste-vereine": [
-    ["Wo bekomme ich günstig Lebensmittel, Möbel oder Kleidung?", "Die Tafel Krefeld gibt Lebensmittel an Bedürftige aus – wer berechtigt ist, erfahrt ihr direkt bei der Tafel. Gebrauchte Möbel und Waren aus zweiter Hand gibt es bei fairKauf (Caritas-Service)."],
+    ["Wo bekomme ich günstig Lebensmittel, Möbel oder Kleidung?", "Die Tafel Krefeld gibt Lebensmittel an Bedürftige aus – wer berechtigt ist, erfährst du direkt bei der Tafel. Gebrauchte Möbel und Waren aus zweiter Hand gibt es bei fairKauf (Caritas-Service)."],
     ["Ich möchte mich ehrenamtlich engagieren. Wo finde ich passende Angebote?", "Das Freiwilligenzentrum Krefeld vermittelt Ehrenamtliche an Vereine und Einrichtungen in der Stadt."],
     ["Wo finden wohnungslose Menschen Hilfe?", "Es gibt einen Tagesaufenthalt für Wohnungslose der Diakonie, die Bahnhofsmission am Hauptbahnhof und Notschlafstellen. Die Wohnungsnotfallhilfen des Diakonischen Werks beraten auch, wenn der Verlust der Wohnung droht."],
   ],

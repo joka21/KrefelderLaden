@@ -25,7 +25,7 @@ export const FAQ: Record<string, FaqEintrag[]> = {
     {
       frage: "Ich weiß nicht, welche Stelle die richtige ist. Wo fange ich an?",
       antwort: [
-        "Sucht euch die Einrichtung in eurem Stadtbezirk aus dem passenden Bereich. Wenn ihr unsicher seid: Allgemeine Sozialberatung bieten zum Beispiel die ",
+        "Such dir die Einrichtung in deinem Stadtbezirk aus dem passenden Bereich. Wenn du unsicher bist: Allgemeine Sozialberatung bieten zum Beispiel die ",
         link("Caritas", "caritasverband-fuer-die-region-krefeld-e-v"),
         ", die ",
         link("Diakonie", "diakonie-krefeld-viersen"),
@@ -33,13 +33,13 @@ export const FAQ: Record<string, FaqEintrag[]> = {
         link("SKM", "beratungsstelle-skm-krefeld-e-v"),
         " und der ",
         link("SkF", "sozialdienst-katholischer-frauen-e-v-krefeld-skf"),
-        ". Dort hilft man euch auch weiter, wenn ihr woanders besser aufgehoben seid.",
+        ". Dort hilft man dir auch weiter, wenn du woanders besser aufgehoben bist.",
       ],
     },
     {
       frage: "Woher stammen die Angaben?",
       antwort: [
-        "Alle Einrichtungen stammen aus den offenen Daten der Stadt Krefeld. Wir gleichen sie regelmäßig ab. Öffnungszeiten und Termine erfahrt ihr am besten direkt bei der Einrichtung.",
+        "Alle Einrichtungen stammen aus den offenen Daten der Stadt Krefeld. Wir gleichen sie regelmäßig ab. Öffnungszeiten und Termine erfährst du am besten direkt bei der Einrichtung.",
       ],
     },
   ],
@@ -48,7 +48,7 @@ export const FAQ: Record<string, FaqEintrag[]> = {
     {
       frage: "Wo bekomme ich eine unabhängige Pflegeberatung?",
       antwort: [
-        "Wer Leistungen der Pflegeversicherung bekommt oder beantragt, hat Anspruch auf eine kostenlose Pflegeberatung. In Krefeld helfen euch der ",
+        "Wer Leistungen der Pflegeversicherung bekommt oder beantragt, hat Anspruch auf eine kostenlose Pflegeberatung. In Krefeld helfen dir der ",
         link("Pflegestützpunkt", "pflegestuetzpunkt-stadt-krefeld"),
         " und die ",
         link("Pflegeberatung und Altenhilfe der Stadt", "pflegeberatung-und-altenhilfe-stadt-krefeld"),
@@ -63,7 +63,7 @@ export const FAQ: Record<string, FaqEintrag[]> = {
     },
     {
       frage: "Was ist, wenn Rente und Pflegekasse für das Pflegeheim nicht reichen?",
-      antwort: ["Dann könnt ihr beim Sozialamt „Hilfe zur Pflege“ beantragen. Die Pflegeberatung hilft euch beim Antrag."],
+      antwort: ["Dann kannst du beim Sozialamt „Hilfe zur Pflege“ beantragen. Die Pflegeberatung hilft dir beim Antrag."],
     },
     {
       frage: "Kostet ein Hospiz etwas?",
@@ -133,7 +133,7 @@ export const FAQ: Record<string, FaqEintrag[]> = {
       antwort: [
         "Die ",
         link("Tafel Krefeld", "tafel-krefeld-e-v"),
-        " gibt Lebensmittel an Bedürftige aus – wer berechtigt ist, erfahrt ihr direkt bei der Tafel. Gebrauchte Möbel und Waren aus zweiter Hand gibt es bei ",
+        " gibt Lebensmittel an Bedürftige aus – wer berechtigt ist, erfährst du direkt bei der Tafel. Gebrauchte Möbel und Waren aus zweiter Hand gibt es bei ",
         link("fairKauf (Caritas-Service)", "fairkauf-moebel-laden-caritas-service"),
         ".",
       ],
