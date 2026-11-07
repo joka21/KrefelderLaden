@@ -70,6 +70,13 @@ function MarktBlock({ markt, passend }: { markt: Markt; passend?: { title: strin
         {markt.eintritt ? <Angabe label="Eintritt">{markt.eintritt}</Angabe> : null}
       </dl>
       <p className="mt-3 leading-relaxed">{markt.text}</p>
+      {markt.website ? (
+        <p className="mt-3">
+          <a href={markt.website} className={TEXT_LINK} rel="noopener">
+            Offizielle Website
+          </a>
+        </p>
+      ) : null}
       {passend ? (
         <p className="mt-3 leading-relaxed">
           Passend dazu:{" "}
