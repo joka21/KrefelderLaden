@@ -38,6 +38,15 @@ export function revalidateSecret(): string {
   return process.env.KLS_REVALIDATE_SECRET?.trim() ?? "";
 }
 
+/**
+ * Secret des täglichen Vercel-Cron (GET /api/revalidate). Vercel sendet es als
+ * „Authorization: Bearer …“, sobald CRON_SECRET im Projekt gesetzt ist; leer =
+ * Route lehnt jeden Aufruf ab.
+ */
+export function cronSecret(): string {
+  return process.env.CRON_SECRET?.trim() ?? "";
+}
+
 /** Secret für /api/preview; leer = Route lehnt jede Anfrage ab. */
 export function previewSecret(): string {
   return process.env.KLS_PREVIEW_SECRET?.trim() ?? "";

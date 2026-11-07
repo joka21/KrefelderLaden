@@ -1,9 +1,10 @@
 import { revalidatePath, revalidateTag } from "next/cache";
-import type { NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
 
-import { klsSite, revalidateSecret } from "@/lib/env";
+import { cronSecret, klsSite, revalidateSecret } from "@/lib/env";
 import { TAGS } from "@/lib/kls";
 import { secretMatches } from "@/lib/secrets";
+import { TAEGLICHE_PFADE } from "@/lib/taeglich";
 
 /**
  * POST /api/revalidate – Revalidation durch WordPress (API-Vertrag, Abschnitt
@@ -14,6 +15,11 @@ import { secretMatches } from "@/lib/secrets";
  *
  * Verarbeitet alle gelieferten Pfade, auch Frontend-Routen ohne
  * WordPress-Inhalt wie „/“ und „/ratgeber/“.
+ *
+ * GET /api/revalidate – täglicher Vercel-Cron (vercel.json). Header
+ * „Authorization: Bearer {CRON_SECRET}“, sonst 401. Erneuert TAEGLICHE_PFADE
+ * und ruft sie danach einmal auf, damit der erste Besucher nach Mitternacht
+ * schon die neue Fassung bekommt.
  */
 
 const EXPIRE_NOW = { expire: 0 };
@@ -95,4 +101,27 @@ export async function POST(request: NextRequest) {
   }
 
   return Response.json({ revalidated: true, events, paths: paths.length });
+}
+
+export async function GET(request: NextRequest) {
+  const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!secretMatches(given, cronSecret())) {
+    return Response.json({ revalidated: false, message: "Ungültiges oder fehlendes Secret." }, { status: 401 });
+  }
+
+  for (const path of TAEGLICHE_PFADE) {
+    revalidatePage(path);
+  }
+
+  // Nach der Antwort jede Seite einmal abrufen: Der Abruf stößt die Neuerzeugung an.
+  const origin = request.nextUrl.origin;
+  after(async () => {
+    await Promise.all(
+      TAEGLICHE_PFADE.map((path) =>
+        fetch(origin + path, { cache: "no-store" }).catch((error) => console.error(`Cron ${path}:`, error)),
+      ),
+    );
+  });
+
+  return Response.json({ revalidated: true, paths: TAEGLICHE_PFADE });
 }
