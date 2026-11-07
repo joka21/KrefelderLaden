@@ -18,7 +18,9 @@ import { MAERKTE_PATH } from "@/lib/weihnachtsmaerkte";
  *
  * Optionale Texte der Kategorieseite (ohne Angabe gilt der Kategoriename bzw.
  * die Beschreibung aus WordPress): heading (H1), eyebrow (kleine Zeile über der
- * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an),
+ * H1), metaTitle (ohne „ – Krefelder Laden“, das hängt pageTitle() an;
+ * mit titelOhneMarke: true bleibt er genau so, z. B. wenn er sonst über 60
+ * Zeichen käme),
  * metaDescription (höchstens 155 Zeichen), intro (Absätze unter der
  * Unterzeile aus WordPress), image (Motiv neben dem Text), link (deutlicher
  * Link unter dem Text).
@@ -34,6 +36,7 @@ export interface Kategorie {
   heading?: string;
   eyebrow?: string;
   metaTitle?: string;
+  titelOhneMarke?: boolean;
   metaDescription?: string;
   intro?: readonly string[];
   image?: { src: StaticImageData; alt: string };
@@ -47,6 +50,9 @@ export const KATEGORIEN: readonly Kategorie[] = [
     slug: "weihnachten",
     label: "Weihnachten",
     imMenue: true,
+    heading: "Weihnachten in Krefeld",
+    metaTitle: "Weihnachten in Krefeld 2026: Märkte, Geschenke, Termine",
+    titelOhneMarke: true,
     intro: [
       "Wann und wo ist in Krefeld Weihnachtsmarkt? Otto hat alle Märkte 2026 für dich zusammengetragen, mit Terminen und Orten von Bruckhausen bis Fischeln.",
     ],

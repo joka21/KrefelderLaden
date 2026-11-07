@@ -24,6 +24,12 @@ function metaTitle(kategorie: WpCategory, page: number): string {
   return titel ? seite(titel, page) : heading(kategorie, page);
 }
 
+/** Vollständiger Title: mit „ – Krefelder Laden“, außer bei titelOhneMarke. */
+function vollerTitel(kategorie: WpCategory, page: number, settings: Awaited<ReturnType<typeof getSettings>>): string {
+  const titel = metaTitle(kategorie, page);
+  return findKategorie(kategorie.slug)?.titelOhneMarke ? titel : pageTitle(titel, settings);
+}
+
 /** Beschreibung aus WordPress als Text (ohne HTML). */
 export function kategorieBeschreibung(kategorie: WpCategory): string {
   return decodeEntities(kategorie.description.replace(/<[^>]+>/g, "")).trim();
@@ -53,7 +59,7 @@ export async function kategorieMetadata(slug: string, page: number): Promise<Met
   }
   const name = decodeEntities(daten.kategorie.name);
   return defaultMetadata(settings, {
-    title: pageTitle(metaTitle(daten.kategorie, page), settings),
+    title: vollerTitel(daten.kategorie, page, settings),
     description:
       findKategorie(slug)?.metaDescription ||
       kategorieBeschreibung(daten.kategorie) ||
@@ -95,7 +101,7 @@ export async function KategorieSeite({ slug, page }: { slug: string; page: numbe
     <>
       <JsonLd
         data={defaultSchema(settings, {
-          name: pageTitle(metaTitle(daten.kategorie, page), settings),
+          name: vollerTitel(daten.kategorie, page, settings),
           path: pageHref(kategoriePath(slug), page),
           type: "CollectionPage",
         })}
