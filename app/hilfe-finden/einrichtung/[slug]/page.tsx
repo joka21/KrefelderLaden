@@ -19,6 +19,7 @@ import {
   inDerNaehe,
   HILFE_PATH,
   HILFE_TEXTS,
+  osmLink,
 } from "@/lib/hilfe";
 import { prepareContent } from "@/lib/html";
 import { hatSichtbarenInhalt } from "@/lib/html-inhalt";
@@ -93,10 +94,26 @@ export async function generateMetadata({ params }: PageProps<"/hilfe-finden/einr
   };
 }
 
+const LINK = "text-green underline underline-offset-4 hover:text-green-dark";
+
+/** Abschnitt mit H2; ohne Inhalt nicht angezeigt (siehe Aufrufer). */
+function Abschnitt({ id, titel, children }: { id: string; titel: string; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={id} className="mt-10">
+      <h2 id={id} className="mb-4 text-2xl">
+        {titel}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
 /**
- * Detailseite: Notruf-Kasten (falls gesetzt), Name, Kategorie, Kurztext, Adresse,
- * Stadtbezirk, Website, redaktioneller Text (nur, wenn vorhanden) und die
- * 4 nächstgelegenen Einrichtungen (Luftlinie).
+ * Detailseite: Notruf-Kasten (falls gesetzt), Name und Kategorie, dann feste
+ * Abschnitte, jeder nur mit Daten: „Angebot“ (Kurztext, redaktioneller Text),
+ * „Für wen“ (kl_fuer_wen), „Kontakt“ (Website, Telefon, E-Mail), „So erreichst
+ * du uns“ (Adresse, Stadtbezirk, Karte); zum Schluss die 4 nächstgelegenen
+ * Einrichtungen (Luftlinie).
  */
 export default async function EinrichtungPage({ params }: PageProps<"/hilfe-finden/einrichtung/[slug]">) {
   const content = await load(toPath((await params).slug));
@@ -110,6 +127,8 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe-find
   const bereich = findBereich(einrichtung.bereich.slug);
   const naehe = inDerNaehe(einrichtung, alle);
   const homeUrl = `${settings.site.frontend_url.replace(/\/+$/, "")}/`;
+  const mitText = hatSichtbarenInhalt(content.content);
+  const karte = osmLink(einrichtung);
 
   return (
     <>
@@ -134,46 +153,87 @@ export default async function EinrichtungPage({ params }: PageProps<"/hilfe-find
           {einrichtung.kategorie ? <p className="mt-3 text-lg text-muted">{einrichtung.kategorie.name}</p> : null}
         </header>
 
-        {einrichtung.kurztext ? <p className="max-w-prose text-lg leading-relaxed">{einrichtung.kurztext}</p> : null}
-
-        <dl className="mt-8 grid gap-x-8 gap-y-4 rounded-lg bg-wash p-6 sm:grid-cols-[auto_1fr]">
-          <dt className="font-bold">Adresse</dt>
-          <dd>
-            {einrichtung.adresse}
-            <br />
-            {einrichtung.plz} Krefeld
-          </dd>
-
-          <dt className="font-bold">Stadtbezirk</dt>
-          <dd>
-            <Link
-              href={bezirkPath(einrichtung.bezirk.slug)}
-              className="text-green underline underline-offset-4 hover:text-green-dark"
-            >
-              Krefeld-{einrichtung.bezirk.name}
-            </Link>
-            {einrichtung.bezirkBis2025 ? ` (bis 2025: Bezirk ${einrichtung.bezirkBis2025})` : ""}
-          </dd>
-
-          {einrichtung.website ? (
-            <>
-              <dt className="font-bold">Website</dt>
-              <dd>
-                <a
-                  href={einrichtung.website}
-                  rel="noopener"
-                  className="break-all text-green underline underline-offset-4 hover:text-green-dark"
-                >
-                  {einrichtung.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-                </a>
-              </dd>
-            </>
-          ) : null}
-        </dl>
-
-        {hatSichtbarenInhalt(content.content) ? (
-          <div className="wp-content mt-10" dangerouslySetInnerHTML={{ __html: prepareContent(content.content, einrichtung.name) }} />
+        {einrichtung.kurztext || mitText ? (
+          <Abschnitt id="angebot" titel="Angebot">
+            {einrichtung.kurztext ? <p className="max-w-prose text-lg leading-relaxed">{einrichtung.kurztext}</p> : null}
+            {mitText ? (
+              <div className="wp-content mt-6" dangerouslySetInnerHTML={{ __html: prepareContent(content.content, einrichtung.name) }} />
+            ) : null}
+          </Abschnitt>
         ) : null}
+
+        {einrichtung.fuerWen ? (
+          <Abschnitt id="fuer-wen" titel="Für wen">
+            <p className="max-w-prose text-lg leading-relaxed">{einrichtung.fuerWen}</p>
+          </Abschnitt>
+        ) : null}
+
+        {einrichtung.website || einrichtung.telefon || einrichtung.email ? (
+          <Abschnitt id="kontakt" titel="Kontakt">
+            <dl className="grid gap-x-8 gap-y-4 rounded-lg bg-wash p-6 sm:grid-cols-[auto_1fr]">
+              {einrichtung.website ? (
+                <>
+                  <dt className="font-bold">Website</dt>
+                  <dd>
+                    <a href={einrichtung.website} rel="noopener" className={`break-all ${LINK}`}>
+                      {einrichtung.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                    </a>
+                  </dd>
+                </>
+              ) : null}
+              {einrichtung.telefon ? (
+                <>
+                  <dt className="font-bold">Telefon</dt>
+                  <dd>
+                    <a href={`tel:${einrichtung.telefon.replace(/[^+\d]/g, "")}`} className={LINK}>
+                      {einrichtung.telefon}
+                    </a>
+                  </dd>
+                </>
+              ) : null}
+              {einrichtung.email ? (
+                <>
+                  <dt className="font-bold">E-Mail</dt>
+                  <dd>
+                    <a href={`mailto:${einrichtung.email}`} className={`break-all ${LINK}`}>
+                      {einrichtung.email}
+                    </a>
+                  </dd>
+                </>
+              ) : null}
+            </dl>
+          </Abschnitt>
+        ) : null}
+
+        <Abschnitt id="anfahrt" titel="So erreichst du uns">
+          <dl className="grid gap-x-8 gap-y-4 rounded-lg bg-wash p-6 sm:grid-cols-[auto_1fr]">
+            <dt className="font-bold">Adresse</dt>
+            <dd>
+              {einrichtung.adresse}
+              <br />
+              {einrichtung.plz} Krefeld
+            </dd>
+
+            <dt className="font-bold">Stadtbezirk</dt>
+            <dd>
+              <Link href={bezirkPath(einrichtung.bezirk.slug)} className={LINK}>
+                Krefeld-{einrichtung.bezirk.name}
+              </Link>
+              {einrichtung.bezirkBis2025 ? ` (bis 2025: Bezirk ${einrichtung.bezirkBis2025})` : ""}
+            </dd>
+
+            {karte ? (
+              <>
+                <dt className="font-bold">Karte</dt>
+                <dd>
+                  <a href={karte} rel="noopener" className={LINK}>
+                    Auf OpenStreetMap ansehen
+                  </a>
+                </dd>
+              </>
+            ) : null}
+          </dl>
+        </Abschnitt>
 
         {naehe.length > 0 ? (
           <section aria-labelledby="in-der-naehe" className="mt-12">

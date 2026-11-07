@@ -127,8 +127,20 @@ export interface Einrichtung {
   lat: string;
   lon: string;
   notruf: boolean;
+  fuerWen: string;
+  telefon: string;
+  email: string;
   modified: string | null;
 }
+
+/** Link auf die Karte (OpenStreetMap) aus den Koordinaten; "" ohne gültige Koordinaten. */
+export function osmLink({ lat, lon }: Pick<Einrichtung, "lat" | "lon">): string {
+  const breite = Number(lat);
+  const laenge = Number(lon);
+  if (!lat || !lon || !Number.isFinite(breite) || !Number.isFinite(laenge)) return "";
+  return `https://www.openstreetmap.org/?mlat=${breite}&mlon=${laenge}#map=18/${breite}/${laenge}`;
+}
+
 
 function begriff(term: KlsTerm): Begriff {
   return { slug: term.slug, name: decodeEntities(term.name) };
@@ -184,6 +196,9 @@ function toEinrichtung(
     lat: fields.lat,
     lon: fields.lon,
     notruf: fields.notruf_hinweis,
+    fuerWen: fields.kl_fuer_wen?.trim() ?? "",
+    telefon: fields.kl_telefon?.trim() ?? "",
+    email: fields.kl_email?.trim() ?? "",
     modified: base.modified,
   };
 }

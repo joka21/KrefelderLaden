@@ -105,6 +105,11 @@ export interface KlsAnbieter {
   kl_geprueft_am: string;
   kl_gueltig_bis: string;
   notruf_hinweis: boolean;
+  /** Optional (KL Core, noch nicht geliefert): Zielgruppe in einem Satz. */
+  kl_fuer_wen?: string;
+  /** Optional (KL Core, noch nicht geliefert): Telefon und E-Mail der Einrichtung. */
+  kl_telefon?: string;
+  kl_email?: string;
 }
 
 export interface KlsContent {
