@@ -60,20 +60,10 @@ function Angabe({ label, children }: { label: string; children: React.ReactNode 
   );
 }
 
-/** „Stand: geprüft am 06.11.2026 · Quelle“ je Termin; Quelle nur mit URL. */
+/** „Stand: geprüft am 06.11.2026“ je Termin; die Quelle steht einmal je Markt unter „Die Märkte im Einzelnen“. */
 function TerminStand({ termin }: { termin: Termin }) {
-  if (!termin.geprueftAm && !termin.quelle) return null;
-  return (
-    <span className="mt-1 block text-sm text-muted">
-      {termin.geprueftAm ? `Stand: geprüft am ${datumDeutsch(termin.geprueftAm)}` : null}
-      {termin.geprueftAm && termin.quelle ? " · " : null}
-      {termin.quelle ? (
-        <a href={termin.quelle} className={TEXT_LINK} rel="noopener">
-          Quelle
-        </a>
-      ) : null}
-    </span>
-  );
+  if (!termin.geprueftAm) return null;
+  return <span className="mt-1 block text-sm text-muted">Stand: geprüft am {datumDeutsch(termin.geprueftAm)}</span>;
 }
 
 /** „Für Verkäufer“ im Abschnitt eines Markts; nur mit mindestens einem Wert. */
@@ -242,11 +232,18 @@ export async function TroedelmaerkteSeite() {
                 </Angabe>
                 <Angabe label="Eintritt">{termin.eintritt || "keine Angabe"}</Angabe>
               </dl>
-              {termin.url ? (
-                <p className="mt-3">
-                  <a href={termin.url} className={TEXT_LINK} rel="noopener">
-                    Zur Veranstaltung bzw. Quelle
-                  </a>
+              {termin.website || termin.quelle ? (
+                <p className="mt-3 space-x-4">
+                  {termin.website ? (
+                    <a href={termin.website} className={TEXT_LINK} rel="noopener">
+                      Zur Veranstaltung
+                    </a>
+                  ) : null}
+                  {termin.quelle && termin.quelle !== termin.website ? (
+                    <a href={termin.quelle} className={TEXT_LINK} rel="noopener">
+                      Quelle
+                    </a>
+                  ) : null}
                 </p>
               ) : null}
               <FuerVerkaeufer markt={markt} />
