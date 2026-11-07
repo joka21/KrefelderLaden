@@ -11,6 +11,7 @@ import {
   antwortZeile,
   antwortZuerst,
   BESONDERE,
+  datumDeutsch,
   datumKurz,
   datumLang,
   fragen,
@@ -53,6 +54,22 @@ function Angabe({ label, children }: { label: string; children: React.ReactNode 
   );
 }
 
+/** „Stand: geprüft am 06.11.2026 · Quelle“ je Termin; Quelle nur mit URL. */
+function TerminStand({ termin }: { termin: Termin }) {
+  if (!termin.geprueftAm && !termin.quelle) return null;
+  return (
+    <span className="mt-1 block text-sm text-muted">
+      {termin.geprueftAm ? `Stand: geprüft am ${datumDeutsch(termin.geprueftAm)}` : null}
+      {termin.geprueftAm && termin.quelle ? " · " : null}
+      {termin.quelle ? (
+        <a href={termin.quelle} className={TEXT_LINK} rel="noopener">
+          Quelle
+        </a>
+      ) : null}
+    </span>
+  );
+}
+
 /** Tabelle mit Datum, Uhrzeit, Markt, Ort, Stadtteil; mobil je Termin ein Block. */
 function TerminTabelle({ termine }: { termine: readonly Termin[] }) {
   return (
@@ -76,6 +93,7 @@ function TerminTabelle({ termine }: { termine: readonly Termin[] }) {
             <td className={`block ${ZELLE}`}>
               {termin.markt}
               <Hinweis termin={termin} />
+              <TerminStand termin={termin} />
             </td>
             <td className={`block text-muted sm:text-ink ${ZELLE}`}>{termin.ort}</td>
             <td className={`block text-muted sm:text-ink ${ZELLE}`}>{termin.stadtteil || "–"}</td>
@@ -100,6 +118,7 @@ function TerminListe({ termine }: { termine: readonly Termin[] }) {
             {termin.stadtteil ? ` (${termin.stadtteil})` : ""}
           </p>
           <Hinweis termin={termin} />
+          <TerminStand termin={termin} />
         </li>
       ))}
     </ul>

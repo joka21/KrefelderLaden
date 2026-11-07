@@ -82,6 +82,10 @@ export interface Termin {
   turnus: string;
   eintritt: string;
   url: string;
+  /** Quelle der Angaben (quelle_url), z. B. der Buchungskalender des Veranstalters. */
+  quelle: string;
+  /** Tag der Prüfung (recherchiert_am), JJJJ-MM-TT. */
+  geprueftAm: string;
   art: Art;
 }
 
@@ -125,6 +129,8 @@ export const TERMINE: readonly Termin[] = ZEILEN.flatMap((zeile, index) => {
       turnus: zeile.turnus,
       eintritt: zeile.eintritt,
       url: url(zeile),
+      quelle: zeile.quelle_url,
+      geprueftAm: zeile.recherchiert_am,
       art: termin,
     },
   ];
@@ -207,6 +213,9 @@ export function uhrzeitText({ beginn, ende, art }: Pick<Termin, "beginn" | "ende
 export function adresse({ strasse, plz }: Pick<Termin, "strasse" | "plz">): string {
   return [strasse, [plz, "Krefeld"].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 }
+
+/** „2026-11-06“ → „06.11.2026“. */
+export const datumDeutsch = (iso: string) => iso.split("-").reverse().join(".");
 
 /* ------------------------------------------------------------------ */
 /* Auswahl nach Datum                                                  */
