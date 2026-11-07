@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FeatureNotice } from "@/components/feature-notice";
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
+import { StartseiteLinks } from "@/components/startseite-links";
 import { WeihnachtsStartseite, weihnachtsStartseiteMetadata } from "@/components/weihnachts-startseite";
 import kraehe from "@/public/images/kraehe.webp";
 import { getContent, getPosts, getPublishedPaths, getSettings, type KlsContent } from "@/lib/kls";
@@ -67,6 +68,8 @@ export default async function HomePage() {
           <p className="mt-5 max-w-prose text-lg leading-relaxed">{TEXTS.home.intro}</p>
         </div>
       </section>
+
+      <StartseiteLinks />
 
       {featureSichtbar(published) ? <FeatureNotice feature={FEATURE} /> : null}
 

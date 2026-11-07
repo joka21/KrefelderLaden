@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/json-ld";
 import { PostList } from "@/components/post-list";
+import { StartseiteLinks } from "@/components/startseite-links";
 import { allPosts } from "@/lib/kategorien";
 import { getCategory, getCategoryPostIds, getSettings, getTag, getTagPostIds } from "@/lib/kls";
 import { defaultMetadata, defaultSchema } from "@/lib/seo";
@@ -76,6 +77,8 @@ export async function WeihnachtsStartseite() {
           ) : null}
         </div>
       </section>
+
+      <StartseiteLinks />
 
       {maerkte.length > 0 ? (
         <section aria-labelledby="maerkte" className={ABSCHNITT}>
