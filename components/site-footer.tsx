@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getContent, getPosts } from "@/lib/kls";
 import { LEGAL_LINKS, RATGEBER_PATH } from "@/lib/sections";
+import { UEBER_UNS, UEBER_UNS_BEREIT, UEBER_UNS_PATH } from "@/lib/ueber-uns";
 
 /**
  * Impressum und Datenschutz – nur verlinkt, wenn veröffentlicht. Geprüft über
@@ -39,6 +40,13 @@ export async function SiteFooter() {
     <footer className="mt-20 border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8">
         <p>© Krefelder Laden</p>
+        {UEBER_UNS_BEREIT ? (
+          <p>
+            <Link href={UEBER_UNS_PATH} className="text-green underline underline-offset-4 hover:text-green-dark">
+              {UEBER_UNS.footerLink}
+            </Link>
+          </p>
+        ) : null}
         {posts ? (
           <p>
             <Link href={RATGEBER_PATH} className="text-green underline underline-offset-4 hover:text-green-dark">

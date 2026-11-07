@@ -6,6 +6,7 @@ import { getKategorieSeite, HILFE_KATEGORIE, KATEGORIEN, kategoriePath } from "@
 import { getPaths, getPosts } from "@/lib/kls";
 import { SECOND_HAND_PATH, STAND as SECOND_HAND_STAND } from "@/lib/second-hand";
 import { STAND as TROEDEL_STAND, TROEDEL_PATH } from "@/lib/troedelmaerkte";
+import { UEBER_UNS_BEREIT, UEBER_UNS_PATH } from "@/lib/ueber-uns";
 import { ALTE_PFADE, MAERKTE_PATH, STAND } from "@/lib/weihnachtsmaerkte";
 
 export const revalidate = 3600;
@@ -82,6 +83,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Inhalt kommt aus dem Frontend, daher unabhängig von /paths und mit eigenem Stand.
   entries.set(MAERKTE_PATH, { url: base + MAERKTE_PATH, lastModified: STAND.iso });
   entries.set(TROEDEL_PATH, { url: base + TROEDEL_PATH, lastModified: TROEDEL_STAND.iso });
+  if (UEBER_UNS_BEREIT) {
+    entries.set(UEBER_UNS_PATH, { url: base + UEBER_UNS_PATH });
+  }
   entries.set(SECOND_HAND_PATH, { url: base + SECOND_HAND_PATH, lastModified: SECOND_HAND_STAND.iso });
 
   return [...entries.values()];
